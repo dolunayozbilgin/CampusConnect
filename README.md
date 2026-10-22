@@ -6,7 +6,7 @@ Developed for **CS310 – Mobile Application Development**, Sabancı University.
 
 ## Group Details
 
-**Group number:** [Group No]
+**Group number:** 40
 
 | Name | Student ID |
 | --- | --- |

@@ -10,10 +10,11 @@ Developed for **CS310 – Mobile Application Development**, Sabancı University.
 
 | Name | Student ID |
 | --- | --- |
-| [Member 1] | [ID] |
-| [Member 2] | [ID] |
-| [Member 3] | [ID] |
-| [Member 4] | [ID] |
+| Dolunay Özbilgin | 32691 |
+| Senih Kırmaç | 32426 |
+| Emre Aksoy | 31977 |
+| Alp Gül | 32452 |
+| Karya Sert | 34317 |
 
 ## Tech Stack
 

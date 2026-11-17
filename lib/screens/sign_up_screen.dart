@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../utils/app_colors.dart';
+import 'event_feed_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -72,14 +73,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Account created'),
         content: Text(
           'Welcome, ${_nameController.text.trim()}. You can look around the event feed next.',
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const EventFeedScreen()),
+                (route) => false,
+              );
+            },
             child: const Text('OK'),
           ),
         ],

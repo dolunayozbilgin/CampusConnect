@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../utils/app_colors.dart';
+import 'event_feed_screen.dart';
 import 'sign_up_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -44,18 +45,29 @@ class _LoginScreenState extends State<LoginScreen> {
     return null;
   }
 
+  void _openFeed() {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const EventFeedScreen()),
+      (route) => false,
+    );
+  }
+
   void _submit() {
     final isValid = _formKey.currentState!.validate();
     if (!isValid) return;
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Welcome back!'),
         content: Text('Logged in as ${_emailController.text.trim()}'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              _openFeed();
+            },
             child: const Text('OK'),
           ),
         ],

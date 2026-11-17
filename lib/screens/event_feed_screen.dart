@@ -162,7 +162,7 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 20),
             itemCount: _categories.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 8),
+            separatorBuilder: (_, _) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               final name = _categories[index];
               final selected = name == _category;
@@ -212,7 +212,7 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
               : ListView.separated(
                   padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                   itemCount: events.length + 1,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     if (index == events.length) {
                       return const Padding(
@@ -421,7 +421,7 @@ class _Cover extends StatelessWidget {
         child: Image.network(
           url,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) {
+          errorBuilder: (_, _, _) {
             return const ColoredBox(
               color: AppColors.cover,
               child: Icon(Icons.photo_camera_outlined, color: AppColors.tagGreenText),

@@ -53,32 +53,40 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: _tab == 0 ? _buildFeed() : _buildPlaceholder(),
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _tab,
-        onDestinationSelected: (index) => setState(() => _tab = index),
-        backgroundColor: AppColors.surface,
-        indicatorColor: AppColors.primaryLight,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Feed',
+    // Keep the feed phone-width on a desktop window so cards and covers
+    // don't stretch into a thin strip.
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 440),
+        child: Scaffold(
+          body: SafeArea(
+            child: _tab == 0 ? _buildFeed() : _buildPlaceholder(),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.calendar_today_outlined),
-            selectedIcon: Icon(Icons.calendar_today),
-            label: 'My Events',
+          bottomNavigationBar: NavigationBar(
+            selectedIndex: _tab,
+            onDestinationSelected: (index) => setState(() => _tab = index),
+            backgroundColor: AppColors.surface,
+            indicatorColor: AppColors.primaryLight,
+            destinations: const [
+              NavigationDestination(
+                icon: Icon(Icons.home_outlined),
+                selectedIcon: Icon(Icons.home),
+                label: 'Feed',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.calendar_today_outlined),
+                selectedIcon: Icon(Icons.calendar_today),
+                label: 'My Events',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.person_outline),
+                selectedIcon: Icon(Icons.person),
+                label: 'Profile',
+              ),
+            ],
           ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -291,12 +299,23 @@ class _EventCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                _DateTile(day: event.day),
-                const SizedBox(width: 12),
-                Expanded(child: _Cover(url: event.imageUrl)),
-              ],
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: SizedBox(
+                height: 168,
+                width: double.infinity,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    _Cover(url: event.imageUrl),
+                    Positioned(
+                      left: 10,
+                      bottom: 10,
+                      child: _DateTile(day: event.day),
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 14),
             Text(
@@ -379,7 +398,7 @@ class _DateTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 64,
-      height: 72,
+      height: 64,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: AppColors.cover,
@@ -413,22 +432,18 @@ class _Cover extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: SizedBox(
-        height: 72,
-        width: double.infinity,
-        child: Image.network(
-          url,
-          fit: BoxFit.cover,
-          errorBuilder: (_, _, _) {
-            return const ColoredBox(
-              color: AppColors.cover,
-              child: Icon(Icons.photo_camera_outlined, color: AppColors.tagGreenText),
-            );
-          },
-        ),
-      ),
+    return Image.network(
+      url,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: 168,
+      alignment: Alignment.center,
+      errorBuilder: (_, _, _) {
+        return const ColoredBox(
+          color: AppColors.cover,
+          child: Icon(Icons.photo_camera_outlined, color: AppColors.tagGreenText),
+        );
+      },
     );
   }
 }

@@ -11,7 +11,7 @@ final List<CampusEvent> sampleEvents = [
     going: 20,
     capacity: 20,
     imageUrl:
-        'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=800&q=60',
+        'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&h=600&q=70',
     initials: ['DÖ', 'EA', 'DY'],
   ),
   CampusEvent(
@@ -23,7 +23,7 @@ final List<CampusEvent> sampleEvents = [
     going: 12,
     capacity: 20,
     imageUrl:
-        'https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&w=800&q=60',
+        'https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&w=900&h=600&q=70',
     initials: ['DY', 'EA', 'KS'],
   ),
   CampusEvent(
@@ -35,7 +35,7 @@ final List<CampusEvent> sampleEvents = [
     going: 14,
     capacity: 40,
     imageUrl:
-        'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=800&q=60',
+        'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=900&h=600&q=70',
     initials: ['AG', 'SK'],
   ),
   CampusEvent(
@@ -47,7 +47,7 @@ final List<CampusEvent> sampleEvents = [
     going: 9,
     capacity: 16,
     imageUrl:
-        'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=800&q=60',
+        'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=900&h=600&q=70',
     initials: ['EA', 'DÖ'],
   ),
   CampusEvent(
@@ -59,7 +59,7 @@ final List<CampusEvent> sampleEvents = [
     going: 7,
     capacity: 15,
     imageUrl:
-        'https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=800&q=60',
+        'https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=900&h=600&q=70',
     initials: ['KS', 'AG', 'SK'],
   ),
 ];

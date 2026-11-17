@@ -15,4 +15,10 @@ class AppColors {
   static const Color textHint = Color(0xFF9CA3AF);
 
   static const Color error = Color(0xFFDC2626);
+
+  static const Color tagGreen = Color(0xFFE5F6EC);
+  static const Color tagGreenText = Color(0xFF1B7F4A);
+  static const Color tagAmber = Color(0xFFFFF4D6);
+  static const Color tagAmberText = Color(0xFF8A5A00);
+  static const Color cover = Color(0xFFE5F3EA);
 }

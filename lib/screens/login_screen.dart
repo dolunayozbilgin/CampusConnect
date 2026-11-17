@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../utils/app_colors.dart';
+import 'sign_up_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -201,7 +202,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: TextStyle(color: AppColors.textSecondary),
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SignUpScreen(),
+                          ),
+                        );
+                      },
                       child: const Text(
                         'Sign up',
                         style: TextStyle(fontWeight: FontWeight.w700),

@@ -67,6 +67,24 @@ void main() {
     expect(find.text('Campus Film Night'), findsOneWidget);
     expect(find.byType(Card), findsWidgets);
 
+    final card = find.ancestor(
+      of: find.text('Campus Film Night'),
+      matching: find.byType(Card),
+    );
+    final title = tester.getRect(
+      find.descendant(of: card, matching: find.text('Campus Film Night')),
+    );
+    final arts = tester.getRect(
+      find.descendant(of: card, matching: find.text('Arts')),
+    );
+    final full = tester.getRect(
+      find.descendant(of: card, matching: find.text('Full')),
+    );
+    expect(arts.left, greaterThan(title.right - 4));
+    expect(arts.left - title.right, lessThan(24));
+    expect(full.left, greaterThan(arts.right));
+    expect((full.center.dy - title.center.dy).abs(), lessThan(8));
+
     await tester.enterText(find.byType(TextField), 'no such event');
     await tester.pump();
 

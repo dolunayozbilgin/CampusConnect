@@ -318,26 +318,40 @@ class _EventCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 14),
-            Text(
-              event.title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 6,
+            Row(
               children: [
-                _Tag(
-                  label: event.category,
-                  background: AppColors.tagGreen,
-                  foreground: AppColors.tagGreenText,
+                Flexible(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          event.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      _Tag(
+                        label: event.category,
+                        background: AppColors.tagGreen,
+                        foreground: AppColors.tagGreenText,
+                      ),
+                    ],
+                  ),
                 ),
-                if (event.isFull)
+                if (event.isFull) ...[
+                  const Spacer(),
                   const _Tag(
                     label: 'Full',
                     background: AppColors.tagAmber,
                     foreground: AppColors.tagAmberText,
                   ),
+                ],
               ],
             ),
             const SizedBox(height: 10),

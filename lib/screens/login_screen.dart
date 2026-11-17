@@ -1,0 +1,149 @@
+import 'package:flutter/material.dart';
+import '../utils/app_colors.dart';
+
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  bool _obscurePassword = true;
+
+  @override
+  Widget build(BuildContext context) {
+        return Scaffold(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // App header
+              const Text(
+                'Login',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 32),
+
+              // Brand: logo tile + app name
+              Row(
+                children: [
+                  Image.asset('assets/images/logo.png', width: 40, height: 40),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'CampusConnect',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              // Title + subtitle
+              const Text(
+                'Your campus,\nconnected.',
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.w700,
+                  height: 1.4,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Discover events and meet students who share your interests.',
+                style: TextStyle(fontSize: 15, color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 32),
+
+              // Email
+              const Text(
+                'University email',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              const TextField(
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  hintText: 'you@university.edu',
+                  suffixIcon: Icon(Icons.mail_outline, size: 20),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Password
+              const Text(
+                'Password',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                obscureText: _obscurePassword,
+                decoration: InputDecoration(
+                  hintText: 'Enter password',
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      size: 20,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Forgot password (left aligned)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                  onPressed: () {},
+                  child: const Text(
+                    'Forgot password?',
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Log in button with arrow icon
+              FilledButton.icon(
+                onPressed: () {},
+                icon: const Icon(Icons.arrow_forward, size: 18),
+                label: const Text('Log in'),
+              ),
+              const SizedBox(height: 20),
+
+              // Sign up link
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'New to CampusConnect?',
+                    style: TextStyle(color: AppColors.textSecondary),
+                  ),
+                  TextButton(
+                    onPressed: () {},
+                    child: const Text(
+                      'Sign up',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+}

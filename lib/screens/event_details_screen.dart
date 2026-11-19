@@ -25,11 +25,24 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     _going = widget.event.going;
   }
 
+  bool get _isFull => _going >= widget.event.capacity;
+
   void _toggleJoin() {
     setState(() {
       _joined = !_joined;
       _going += _joined ? 1 : -1;
     });
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            _joined
+                ? 'You joined ${widget.event.title}'
+                : 'You left ${widget.event.title}',
+          ),
+        ),
+      );
   }
 
   @override
@@ -72,7 +85,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     background: AppColors.tagGreen,
                     foreground: AppColors.tagGreenText,
                   ),
-                  if (event.isFull) ...[
+                  if (_isFull) ...[
                     const SizedBox(width: 8),
                     const EventTag(
                       label: 'Full',
@@ -173,9 +186,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   value: _going / event.capacity,
                   minHeight: 6,
                   backgroundColor: AppColors.border,
-                  color: event.isFull
-                      ? AppColors.tagAmberText
-                      : AppColors.primary,
+                  color: _isFull ? AppColors.tagAmberText : AppColors.primary,
                 ),
               ),
               const SizedBox(height: 12),
@@ -200,9 +211,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   ),
                 )
               : FilledButton.icon(
-                  onPressed: _toggleJoin,
-                  icon: const Icon(Icons.add, size: 18),
-                  label: const Text('Join event'),
+                  onPressed: _isFull ? null : _toggleJoin,
+                  icon: Icon(_isFull ? Icons.block : Icons.add, size: 18),
+                  label: Text(_isFull ? 'Event is full' : 'Join event'),
                 ),
         ),
       ),

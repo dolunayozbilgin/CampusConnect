@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/sample_events.dart';
 import '../models/campus_event.dart';
 import '../utils/app_colors.dart';
+import 'event_details_screen.dart';
 
 class EventFeedScreen extends StatefulWidget {
   const EventFeedScreen({super.key});
@@ -60,9 +61,7 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 440),
         child: Scaffold(
-          body: SafeArea(
-            child: _tab == 0 ? _buildFeed() : _buildPlaceholder(),
-          ),
+          body: SafeArea(child: _tab == 0 ? _buildFeed() : _buildPlaceholder()),
           bottomNavigationBar: NavigationBar(
             selectedIndex: _tab,
             onDestinationSelected: (index) => setState(() => _tab = index),
@@ -117,7 +116,9 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
 
   Widget _buildFeed() {
     final events = _visible;
-    final countLabel = events.length == 1 ? '1 event' : '${events.length} events';
+    final countLabel = events.length == 1
+        ? '1 event'
+        : '${events.length} events';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -290,113 +291,125 @@ class _EventCard extends StatelessWidget {
       elevation: 0,
       color: AppColors.surface,
       margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: const BorderSide(color: AppColors.border),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: SizedBox(
-                height: 168,
-                width: double.infinity,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    _Cover(url: event.imageUrl),
-                    Positioned(
-                      left: 10,
-                      bottom: 10,
-                      child: _DateTile(day: event.day),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                Flexible(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => EventDetailsScreen(event: event)),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: SizedBox(
+                  height: 168,
+                  width: double.infinity,
+                  child: Stack(
+                    fit: StackFit.expand,
                     children: [
-                      Flexible(
-                        child: Text(
-                          event.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      _Tag(
-                        label: event.category,
-                        background: AppColors.tagGreen,
-                        foreground: AppColors.tagGreenText,
+                      _Cover(url: event.imageUrl),
+                      Positioned(
+                        left: 10,
+                        bottom: 10,
+                        child: _DateTile(day: event.day),
                       ),
                     ],
                   ),
                 ),
-                if (event.isFull) ...[
-                  const Spacer(),
-                  const _Tag(
-                    label: 'Full',
-                    background: AppColors.tagAmber,
-                    foreground: AppColors.tagAmberText,
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Flexible(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            event.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        _Tag(
+                          label: event.category,
+                          background: AppColors.tagGreen,
+                          foreground: AppColors.tagGreenText,
+                        ),
+                      ],
+                    ),
                   ),
+                  if (event.isFull) ...[
+                    const Spacer(),
+                    const _Tag(
+                      label: 'Full',
+                      background: AppColors.tagAmber,
+                      foreground: AppColors.tagAmberText,
+                    ),
+                  ],
                 ],
-              ],
-            ),
-            const SizedBox(height: 10),
-            Text(
-              '${formatEventDay(event.day)} · ${event.timeRange}',
-              style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                const Icon(
-                  Icons.location_on_outlined,
-                  size: 16,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                '${formatEventDay(event.day)} · ${event.timeRange}',
+                style: const TextStyle(
+                  fontSize: 13,
                   color: AppColors.textSecondary,
                 ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Text(
-                    event.location,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppColors.textSecondary,
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.location_on_outlined,
+                    size: 16,
+                    color: AppColors.textSecondary,
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      event.location,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                _Initials(initials: event.initials),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    '${event.going} / ${event.capacity} going',
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  _Initials(initials: event.initials),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      '${event.going} / ${event.capacity} going',
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -455,7 +468,10 @@ class _Cover extends StatelessWidget {
       errorBuilder: (_, _, _) {
         return const ColoredBox(
           color: AppColors.cover,
-          child: Icon(Icons.photo_camera_outlined, color: AppColors.tagGreenText),
+          child: Icon(
+            Icons.photo_camera_outlined,
+            color: AppColors.tagGreenText,
+          ),
         );
       },
     );

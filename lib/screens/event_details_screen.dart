@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/campus_event.dart';
 import '../utils/app_colors.dart';
+import '../widgets/attendee_initials.dart';
 import '../widgets/event_cover.dart';
 import '../widgets/event_tag.dart';
 
@@ -132,6 +133,37 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   color: AppColors.textSecondary,
                 ),
               ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  const Text(
+                    'Attendees',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  ),
+                  const Spacer(),
+                  Text(
+                    '${event.going} / ${event.capacity} going',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: event.going / event.capacity,
+                  minHeight: 6,
+                  backgroundColor: AppColors.border,
+                  color: event.isFull
+                      ? AppColors.tagAmberText
+                      : AppColors.primary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              AttendeeInitials(initials: event.initials),
             ],
           ),
         ),

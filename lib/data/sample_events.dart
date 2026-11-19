@@ -10,9 +10,10 @@ final List<CampusEvent> sampleEvents = [
     location: 'Student Union, Room 204',
     going: 20,
     capacity: 20,
-    imageUrl:
-        'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&h=600&q=70',
+    imageUrl: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&h=600&q=70',
     initials: ['DÖ', 'EA', 'DY'],
+    description: 'An evening screening of a student-picked classic, with popcorn and a short discussion afterwards.',
+    host: 'Film Club',
   ),
   CampusEvent(
     title: 'Photography Walk',
@@ -22,9 +23,10 @@ final List<CampusEvent> sampleEvents = [
     location: 'North Gate',
     going: 12,
     capacity: 20,
-    imageUrl:
-        'https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&w=900&h=600&q=70',
+    imageUrl: 'https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&w=900&h=600&q=70',
     initials: ['DY', 'EA', 'KS'],
+    description: 'A relaxed walk around campus to practise composition and light. Any camera or phone is welcome.',
+    host: 'Photography Society',
   ),
   CampusEvent(
     title: 'Campus 5K',
@@ -34,9 +36,10 @@ final List<CampusEvent> sampleEvents = [
     location: 'North Gate',
     going: 14,
     capacity: 40,
-    imageUrl:
-        'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=900&h=600&q=70',
+    imageUrl: 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=900&h=600&q=70',
     initials: ['AG', 'SK'],
+    description: 'A friendly 5K loop around campus for all paces. Water and snacks at the finish line.',
+    host: 'Running Club',
   ),
   CampusEvent(
     title: 'Midterm Study Group',
@@ -46,9 +49,10 @@ final List<CampusEvent> sampleEvents = [
     location: 'Student Union, Room 204',
     going: 9,
     capacity: 16,
-    imageUrl:
-        'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=900&h=600&q=70',
+    imageUrl: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=900&h=600&q=70',
     initials: ['EA', 'DÖ'],
+    description: 'Bring your notes and questions. We split into small groups by course and review together.',
+    host: 'CS Student Society',
   ),
   CampusEvent(
     title: 'Shelter Visit',
@@ -58,8 +62,9 @@ final List<CampusEvent> sampleEvents = [
     location: 'North Gate',
     going: 7,
     capacity: 15,
-    imageUrl:
-        'https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=900&h=600&q=70',
+    imageUrl: 'https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=900&h=600&q=70',
     initials: ['KS', 'AG', 'SK'],
+    description: 'Spend the afternoon helping out at the local animal shelter. Transport from campus is provided.',
+    host: 'Volunteering Club',
   ),
 ];

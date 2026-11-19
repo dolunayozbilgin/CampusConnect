@@ -9,6 +9,8 @@ class CampusEvent {
     required this.capacity,
     required this.imageUrl,
     required this.initials,
+    required this.description,
+    required this.host,
   });
 
   final String title;
@@ -19,6 +21,8 @@ class CampusEvent {
   final int going;
   final int capacity;
   final String imageUrl;
+  final String description;
+  final String host;
   final List<String> initials;
 
   bool get isFull => going >= capacity;

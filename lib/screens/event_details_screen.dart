@@ -16,6 +16,22 @@ class EventDetailsScreen extends StatefulWidget {
 }
 
 class _EventDetailsScreenState extends State<EventDetailsScreen> {
+  bool _joined = false;
+  late int _going;
+
+  @override
+  void initState() {
+    super.initState();
+    _going = widget.event.going;
+  }
+
+  void _toggleJoin() {
+    setState(() {
+      _joined = !_joined;
+      _going += _joined ? 1 : -1;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final event = widget.event;
@@ -142,7 +158,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   ),
                   const Spacer(),
                   Text(
-                    '${event.going} / ${event.capacity} going',
+                    '$_going / ${event.capacity} going',
                     style: const TextStyle(
                       fontSize: 13,
                       color: AppColors.textSecondary,
@@ -154,7 +170,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(
-                  value: event.going / event.capacity,
+                  value: _going / event.capacity,
                   minHeight: 6,
                   backgroundColor: AppColors.border,
                   color: event.isFull
@@ -166,6 +182,28 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               AttendeeInitials(initials: event.initials),
             ],
           ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+          child: _joined
+              ? OutlinedButton.icon(
+                  onPressed: _toggleJoin,
+                  icon: const Icon(Icons.check, size: 18),
+                  label: const Text('Joined · Leave'),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                )
+              : FilledButton.icon(
+                  onPressed: _toggleJoin,
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Join event'),
+                ),
         ),
       ),
     );

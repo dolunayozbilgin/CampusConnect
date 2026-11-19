@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../data/sample_events.dart';
 import '../models/campus_event.dart';
 import '../utils/app_colors.dart';
+import '../widgets/event_cover.dart';
+import '../widgets/event_tag.dart';
 import 'event_details_screen.dart';
 
 class EventFeedScreen extends StatefulWidget {
@@ -316,7 +318,7 @@ class _EventCard extends StatelessWidget {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      _Cover(url: event.imageUrl),
+                      EventCover(url: event.imageUrl),
                       Positioned(
                         left: 10,
                         bottom: 10,
@@ -345,7 +347,7 @@ class _EventCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        _Tag(
+                        EventTag(
                           label: event.category,
                           background: AppColors.tagGreen,
                           foreground: AppColors.tagGreenText,
@@ -355,7 +357,7 @@ class _EventCard extends StatelessWidget {
                   ),
                   if (event.isFull) ...[
                     const Spacer(),
-                    const _Tag(
+                    const EventTag(
                       label: 'Full',
                       background: AppColors.tagAmber,
                       foreground: AppColors.tagAmberText,
@@ -452,62 +454,8 @@ class _DateTile extends StatelessWidget {
   }
 }
 
-class _Cover extends StatelessWidget {
-  const _Cover({required this.url});
 
-  final String url;
 
-  @override
-  Widget build(BuildContext context) {
-    return Image.network(
-      url,
-      fit: BoxFit.cover,
-      width: double.infinity,
-      height: 168,
-      alignment: Alignment.center,
-      errorBuilder: (_, _, _) {
-        return const ColoredBox(
-          color: AppColors.cover,
-          child: Icon(
-            Icons.photo_camera_outlined,
-            color: AppColors.tagGreenText,
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _Tag extends StatelessWidget {
-  const _Tag({
-    required this.label,
-    required this.background,
-    required this.foreground,
-  });
-
-  final String label;
-  final Color background;
-  final Color foreground;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: foreground,
-        ),
-      ),
-    );
-  }
-}
 
 class _Initials extends StatelessWidget {
   const _Initials({required this.initials});

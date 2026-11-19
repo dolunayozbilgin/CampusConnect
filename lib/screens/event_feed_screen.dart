@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import '../data/sample_events.dart';
 import '../models/campus_event.dart';
 import '../utils/app_colors.dart';
+import '../widgets/attendee_initials.dart';
+import '../widgets/event_cover.dart';
+import '../widgets/event_tag.dart';
+import 'event_details_screen.dart';
 
 class EventFeedScreen extends StatefulWidget {
   const EventFeedScreen({super.key});
@@ -60,9 +64,7 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 440),
         child: Scaffold(
-          body: SafeArea(
-            child: _tab == 0 ? _buildFeed() : _buildPlaceholder(),
-          ),
+          body: SafeArea(child: _tab == 0 ? _buildFeed() : _buildPlaceholder()),
           bottomNavigationBar: NavigationBar(
             selectedIndex: _tab,
             onDestinationSelected: (index) => setState(() => _tab = index),
@@ -117,7 +119,9 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
 
   Widget _buildFeed() {
     final events = _visible;
-    final countLabel = events.length == 1 ? '1 event' : '${events.length} events';
+    final countLabel = events.length == 1
+        ? '1 event'
+        : '${events.length} events';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -290,113 +294,125 @@ class _EventCard extends StatelessWidget {
       elevation: 0,
       color: AppColors.surface,
       margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: const BorderSide(color: AppColors.border),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: SizedBox(
-                height: 168,
-                width: double.infinity,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    _Cover(url: event.imageUrl),
-                    Positioned(
-                      left: 10,
-                      bottom: 10,
-                      child: _DateTile(day: event.day),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                Flexible(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => EventDetailsScreen(event: event)),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: SizedBox(
+                  height: 168,
+                  width: double.infinity,
+                  child: Stack(
+                    fit: StackFit.expand,
                     children: [
-                      Flexible(
-                        child: Text(
-                          event.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      _Tag(
-                        label: event.category,
-                        background: AppColors.tagGreen,
-                        foreground: AppColors.tagGreenText,
+                      EventCover(url: event.imageUrl),
+                      Positioned(
+                        left: 10,
+                        bottom: 10,
+                        child: _DateTile(day: event.day),
                       ),
                     ],
                   ),
                 ),
-                if (event.isFull) ...[
-                  const Spacer(),
-                  const _Tag(
-                    label: 'Full',
-                    background: AppColors.tagAmber,
-                    foreground: AppColors.tagAmberText,
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Flexible(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            event.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        EventTag(
+                          label: event.category,
+                          background: AppColors.tagGreen,
+                          foreground: AppColors.tagGreenText,
+                        ),
+                      ],
+                    ),
                   ),
+                  if (event.isFull) ...[
+                    const Spacer(),
+                    const EventTag(
+                      label: 'Full',
+                      background: AppColors.tagAmber,
+                      foreground: AppColors.tagAmberText,
+                    ),
+                  ],
                 ],
-              ],
-            ),
-            const SizedBox(height: 10),
-            Text(
-              '${formatEventDay(event.day)} · ${event.timeRange}',
-              style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                const Icon(
-                  Icons.location_on_outlined,
-                  size: 16,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                '${formatEventDay(event.day)} · ${event.timeRange}',
+                style: const TextStyle(
+                  fontSize: 13,
                   color: AppColors.textSecondary,
                 ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Text(
-                    event.location,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppColors.textSecondary,
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.location_on_outlined,
+                    size: 16,
+                    color: AppColors.textSecondary,
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      event.location,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                _Initials(initials: event.initials),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    '${event.going} / ${event.capacity} going',
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  AttendeeInitials(initials: event.initials),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      '${event.going} / ${event.capacity} going',
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -433,105 +449,6 @@ class _DateTile extends StatelessWidget {
             '${day.day}',
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Cover extends StatelessWidget {
-  const _Cover({required this.url});
-
-  final String url;
-
-  @override
-  Widget build(BuildContext context) {
-    return Image.network(
-      url,
-      fit: BoxFit.cover,
-      width: double.infinity,
-      height: 168,
-      alignment: Alignment.center,
-      errorBuilder: (_, _, _) {
-        return const ColoredBox(
-          color: AppColors.cover,
-          child: Icon(Icons.photo_camera_outlined, color: AppColors.tagGreenText),
-        );
-      },
-    );
-  }
-}
-
-class _Tag extends StatelessWidget {
-  const _Tag({
-    required this.label,
-    required this.background,
-    required this.foreground,
-  });
-
-  final String label;
-  final Color background;
-  final Color foreground;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: foreground,
-        ),
-      ),
-    );
-  }
-}
-
-class _Initials extends StatelessWidget {
-  const _Initials({required this.initials});
-
-  final List<String> initials;
-
-  static const _colors = [
-    Color(0xFFD9E4F5),
-    Color(0xFFF8E3C8),
-    Color(0xFFD8F0E3),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final shown = initials.take(3).toList();
-    return SizedBox(
-      width: shown.isEmpty ? 0 : 16.0 + (shown.length * 16),
-      height: 26,
-      child: Stack(
-        children: [
-          for (var i = 0; i < shown.length; i++)
-            Positioned(
-              left: i * 16,
-              child: CircleAvatar(
-                radius: 13,
-                backgroundColor: AppColors.surface,
-                child: CircleAvatar(
-                  radius: 11,
-                  backgroundColor: _colors[i % _colors.length],
-                  child: Text(
-                    shown[i],
-                    style: const TextStyle(
-                      fontSize: 8,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ),
-              ),
-            ),
         ],
       ),
     );

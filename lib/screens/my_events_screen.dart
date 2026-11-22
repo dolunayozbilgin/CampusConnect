@@ -40,19 +40,29 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
             itemCount: myEvents.length,
             separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
             itemBuilder: (context, index) {
-              return _MyEventCard(event: myEvents[index]);
+              return _MyEventCard(
+                event: myEvents[index],
+                onRemove: () => _removeEvent(index),
+              );
             },
           ),
         ),
       ],
     );
   }
+
+  void _removeEvent(int index) {
+    setState(() {
+      myEvents.removeAt(index);
+    });
+  }
 }
 
 class _MyEventCard extends StatelessWidget {
-  const _MyEventCard({required this.event});
+  const _MyEventCard({required this.event, required this.onRemove});
 
   final CampusEvent event;
+  final VoidCallback onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -102,6 +112,15 @@ class _MyEventCard extends StatelessWidget {
                     style: AppTextStyles.caption,
                   ),
                 ],
+              ),
+            ),
+            IconButton(
+              onPressed: onRemove,
+              tooltip: 'Leave event',
+              icon: const Icon(
+                Icons.close,
+                size: 20,
+                color: AppColors.textSecondary,
               ),
             ),
           ],

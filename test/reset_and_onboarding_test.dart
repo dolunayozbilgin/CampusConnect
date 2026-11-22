@@ -51,7 +51,9 @@ void main() {
     await tester.tap(find.text('Send reset link'));
     await tester.pumpAndSettle();
     expect(
-      find.text("If an account exists for this email, we'll send a reset link."),
+      find.text(
+        "If an account exists for this email, we'll send a reset link.",
+      ),
       findsOneWidget,
     );
 
@@ -80,9 +82,7 @@ void main() {
     expect(find.text('Event Feed'), findsOneWidget);
   });
 
-  testWidgets('saving Complete your profile needs an interest', (
-    tester,
-  ) async {
+  testWidgets('saving Complete your profile needs an interest', (tester) async {
     addTearDown(() => currentProfile = sampleProfile);
     await _signUp(tester);
 

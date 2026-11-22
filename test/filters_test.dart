@@ -46,7 +46,10 @@ void main() {
     tester,
   ) async {
     await _openFilters(tester);
-    expect(find.text('Find something that fits your schedule.'), findsOneWidget);
+    expect(
+      find.text('Find something that fits your schedule.'),
+      findsOneWidget,
+    );
 
     await tester.tap(find.text('Sports'));
     await tester.tap(find.text('Apply filters'));
@@ -56,9 +59,7 @@ void main() {
     expect(find.text('Campus Film Night'), findsNothing);
   });
 
-  testWidgets('custom range shows date errors when left empty', (
-    tester,
-  ) async {
+  testWidgets('custom range shows date errors when left empty', (tester) async {
     await _openFilters(tester);
     expect(find.text('From'), findsNothing);
 

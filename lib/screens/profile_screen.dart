@@ -4,6 +4,7 @@ import '../data/sample_profile.dart';
 import '../models/user_profile.dart';
 import '../utils/app_colors.dart';
 import '../widgets/profile_avatar.dart';
+import '../widgets/stat_tile.dart';
 
 // Shown inside the "Profile" tab of the bottom navigation, so it has no
 // Scaffold of its own.
@@ -30,6 +31,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 16),
           _ProfileHeader(profile: _profile),
+          const SizedBox(height: 12),
+          // Three equal boxes that share the row on any screen width.
+          Row(
+            children: [
+              Expanded(
+                child: StatTile(value: _profile.joinedCount, label: 'Joined'),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: StatTile(
+                  value: _profile.organizedCount,
+                  label: 'Organized',
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: StatTile(
+                  value: _profile.interests.length,
+                  label: 'Interests',
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

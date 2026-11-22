@@ -119,7 +119,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   textCapitalization: TextCapitalization.words,
                   validator: _validateName,
                   decoration: const InputDecoration(
-                    hintText: 'Enter your full name',
+                    hintText: 'Name and surname',
                   ),
                 ),
                 const SizedBox(height: 20),

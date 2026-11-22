@@ -6,6 +6,7 @@ import '../utils/app_colors.dart';
 import '../widgets/event_tag.dart';
 import '../widgets/profile_avatar.dart';
 import '../widgets/stat_tile.dart';
+import 'login_screen.dart';
 
 // Shown inside the "Profile" tab of the bottom navigation, so it has no
 // Scaffold of its own.
@@ -18,6 +19,35 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   UserProfile _profile = sampleProfile;
+  bool _notifications = true;
+
+  void _confirmLogOut() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Log out?'),
+        content: const Text('You will need to log in again to see events.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              // Clear the whole stack so Back can't return to the app.
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                (route) => false,
+              );
+            },
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('Log out'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +100,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   foreground: AppColors.primary,
                 ),
             ],
+          ),
+          const SizedBox(height: 24),
+          const _SectionTitle('Settings'),
+          const SizedBox(height: 10),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Column(
+              children: [
+                SwitchListTile(
+                  value: _notifications,
+                  onChanged: (value) => setState(() => _notifications = value),
+                  secondary: const Icon(Icons.notifications_outlined),
+                  title: const Text('Event reminders'),
+                ),
+                const Divider(height: 1, color: AppColors.border),
+                ListTile(
+                  onTap: _confirmLogOut,
+                  leading: const Icon(Icons.logout, color: AppColors.error),
+                  title: const Text(
+                    'Log out',
+                    style: TextStyle(color: AppColors.error),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

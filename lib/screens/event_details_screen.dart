@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../models/campus_event.dart';
 import '../utils/app_colors.dart';
-import '../widgets/attendee_initials.dart';
 import '../widgets/event_cover.dart';
 import '../widgets/event_date_tile.dart';
 import '../widgets/event_tag.dart';
@@ -27,6 +26,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   }
 
   bool get _isFull => _going >= widget.event.capacity;
+
+  void _showComingSoon(String screen) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text('$screen screen is coming soon')));
+  }
 
   // "Photography Society" -> "PS"
   String _initialsOf(String name) {
@@ -192,35 +197,19 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  const Text(
-                    'Attendees',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                  ),
-                  const Spacer(),
-                  Text(
-                    '$_going / ${event.capacity} going',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 20),
+              _LinkRow(
+                icon: Icons.people_outline,
+                label: 'Attendees',
+                value: '$_going going',
+                onTap: () => _showComingSoon('Attendees'),
               ),
               const SizedBox(height: 10),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: _going / event.capacity,
-                  minHeight: 6,
-                  backgroundColor: AppColors.border,
-                  color: _isFull ? AppColors.tagAmberText : AppColors.primary,
-                ),
+              _LinkRow(
+                icon: Icons.chat_bubble_outline,
+                label: 'Discussion',
+                onTap: () => _showComingSoon('Discussion'),
               ),
-              const SizedBox(height: 12),
-              AttendeeInitials(initials: event.initials),
             ],
           ),
         ),
@@ -297,6 +286,67 @@ class _InfoRow extends StatelessWidget {
           ),
           ?trailing,
         ],
+      ),
+    );
+  }
+}
+
+class _LinkRow extends StatelessWidget {
+  const _LinkRow({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final String? value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: AppColors.border),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+          child: Row(
+            children: [
+              Icon(icon, size: 20, color: AppColors.textSecondary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              if (value != null)
+                Text(
+                  value!,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              const SizedBox(width: 6),
+              const Icon(
+                Icons.chevron_right,
+                size: 20,
+                color: AppColors.textSecondary,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

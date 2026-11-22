@@ -82,9 +82,25 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
   }
 
   void _removeEvent(int index) {
+    final removed = myEvents[index];
     setState(() {
       myEvents.removeAt(index);
     });
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('Left ${removed.title}'),
+          action: SnackBarAction(
+            label: 'Undo',
+            onPressed: () {
+              myEvents.insert(index, removed);
+              if (mounted) setState(() {});
+            },
+          ),
+        ),
+      );
   }
 }
 

@@ -5,16 +5,23 @@ import '../utils/app_colors.dart';
 import '../widgets/event_cover.dart';
 import '../widgets/event_date_tile.dart';
 import '../widgets/event_tag.dart';
+import '../data/sample_people.dart';
+import 'attendees_screen.dart';
+import 'create_event_screen.dart';
+import 'discussion_screen.dart';
 
 class EventDetailsScreen extends StatefulWidget {
   const EventDetailsScreen({
     super.key,
     required this.event,
     this.initiallyJoined = false,
+    this.banner,
   });
 
   final CampusEvent event;
   final bool initiallyJoined;
+  // Optional success banner to show on open, e.g. right after publishing.
+  final SuccessBanner? banner;
 
   @override
   State<EventDetailsScreen> createState() => _EventDetailsScreenState();
@@ -23,25 +30,80 @@ class EventDetailsScreen extends StatefulWidget {
 class _EventDetailsScreenState extends State<EventDetailsScreen> {
   late bool _joined;
   late int _going;
+  // Edit Event can hand back a changed copy, so keep our own reference.
+  late CampusEvent _event;
+  SuccessBanner? _banner;
 
   @override
   void initState() {
     super.initState();
     _joined = widget.initiallyJoined;
-    _going = widget.event.going;
+    _event = widget.event;
+    _banner = widget.banner;
+    _going = _event.going;
   }
 
-  bool get _isFull => _going >= widget.event.capacity;
+  bool get _isFull => _going >= _event.capacity;
 
-  void _showComingSoon(String screen) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text('$screen screen is coming soon')));
+  String get _commentLabel {
+    final count = commentsFor(_event.id).length;
+    return count == 1 ? '1 comment' : '$count comments';
+  }
+
+  Future<void> _manageEvent() async {
+    final updated = await Navigator.push<CampusEvent>(
+      context,
+      MaterialPageRoute(builder: (_) => CreateEventScreen(event: _event)),
+    );
+    if (updated == null || !mounted) return;
+
+    if (updated.isCancelled) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(content: Text('${updated.title} was cancelled')),
+        );
+      return;
+    }
+
+    setState(() {
+      _event = updated;
+      _banner = SuccessBanner(
+        title: 'Event updated',
+        message: '${updated.title} has been saved.',
+      );
+    });
   }
 
   // "Photography Society" -> "PS"
   String _initialsOf(String name) {
     return name.split(' ').take(2).map((word) => word[0]).join();
+  }
+
+  Future<void> _confirmLeave() async {
+    final leave = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('Leave ${_event.title}?'),
+        content: const Text(
+          'Your spot will be released. You can join again if places are '
+          'still available.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Stay going'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('Leave event'),
+          ),
+        ],
+      ),
+    );
+    if (leave == true && mounted) _toggleJoin();
   }
 
   void _toggleJoin() {
@@ -54,9 +116,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       ..showSnackBar(
         SnackBar(
           content: Text(
-            _joined
-                ? 'You joined ${widget.event.title}'
-                : 'You left ${widget.event.title}',
+            _joined ? 'You joined ${_event.title}' : 'You left ${_event.title}',
           ),
         ),
       );
@@ -64,7 +124,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final event = widget.event;
+    final event = _event;
 
     return Scaffold(
       appBar: AppBar(
@@ -83,6 +143,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (_banner != null) ...[
+                _SuccessBannerView(
+                  banner: _banner!,
+                  onClose: () => setState(() => _banner = null),
+                ),
+                const SizedBox(height: 12),
+              ],
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: SizedBox(
@@ -208,13 +275,32 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 icon: Icons.people_outline,
                 label: 'Attendees',
                 value: '$_going going',
-                onTap: () => _showComingSoon('Attendees'),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AttendeesScreen(
+                      event: event,
+                      going: _going,
+                      includesMe: _joined || event.isOrganizer,
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 10),
               _LinkRow(
                 icon: Icons.chat_bubble_outline,
                 label: 'Discussion',
-                onTap: () => _showComingSoon('Discussion'),
+                value: _commentLabel,
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => DiscussionScreen(event: event),
+                    ),
+                  );
+                  // Comments may have been posted or deleted.
+                  if (mounted) setState(() {});
+                },
               ),
             ],
           ),
@@ -223,9 +309,40 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-          child: _joined
+          child: event.isOrganizer
+              ? Row(
+                  children: [
+                    const Icon(
+                      Icons.check_circle_outline,
+                      size: 20,
+                      color: AppColors.tagGreenText,
+                    ),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        "You're organizing",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.tagGreenText,
+                        ),
+                      ),
+                    ),
+                    OutlinedButton(
+                      onPressed: _manageEvent,
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(0, 44),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text('Manage event'),
+                    ),
+                  ],
+                )
+              : _joined
               ? OutlinedButton.icon(
-                  onPressed: _toggleJoin,
+                  onPressed: _confirmLeave,
                   icon: const Icon(Icons.check, size: 18),
                   label: const Text('Joined · Leave'),
                   style: OutlinedButton.styleFrom(
@@ -353,6 +470,71 @@ class _LinkRow extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class SuccessBanner {
+  const SuccessBanner({required this.title, required this.message});
+
+  final String title;
+  final String message;
+}
+
+class _SuccessBannerView extends StatelessWidget {
+  const _SuccessBannerView({required this.banner, required this.onClose});
+
+  final SuccessBanner banner;
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 4, 12),
+      decoration: BoxDecoration(
+        color: AppColors.tagGreen,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 1),
+            child: Icon(Icons.check, size: 18, color: AppColors.tagGreenText),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  banner.title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.tagGreenText,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  banner.message,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.tagGreenText,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: onClose,
+            icon: const Icon(Icons.close, size: 18),
+            color: AppColors.tagGreenText,
+            visualDensity: VisualDensity.compact,
+            tooltip: 'Dismiss',
+          ),
+        ],
       ),
     );
   }

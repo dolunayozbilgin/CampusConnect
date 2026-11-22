@@ -7,6 +7,7 @@ import '../widgets/attendee_initials.dart';
 import '../widgets/event_cover.dart';
 import '../widgets/event_date_tile.dart';
 import '../widgets/event_tag.dart';
+import 'create_event_screen.dart';
 import 'event_details_screen.dart';
 import 'my_events_screen.dart';
 import 'profile_screen.dart';
@@ -42,6 +43,8 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
   List<CampusEvent> get _visible {
     final query = _query.trim().toLowerCase();
     return sampleEvents.where((event) {
+      // Cancelled events only show up in My Events.
+      if (event.isCancelled) return false;
       final categoryOk = _category == 'All' || event.category == _category;
       if (!categoryOk) return false;
       if (query.isEmpty) return true;
@@ -122,10 +125,15 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
                 ),
               ),
               TextButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Create event is next')),
+                onPressed: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const CreateEventScreen(),
+                    ),
                   );
+                  // A published event was added to the list; redraw the feed.
+                  if (mounted) setState(() {});
                 },
                 icon: const Icon(Icons.add, size: 18),
                 label: const Text('Create'),

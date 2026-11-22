@@ -127,11 +127,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 24),
           const _SectionTitle('Settings'),
           const SizedBox(height: 10),
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.surface,
+          // Material (not a coloured Container) so the ListTile tap ripple
+          // stays visible.
+          Material(
+            color: AppColors.surface,
+            clipBehavior: Clip.antiAlias,
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
+              side: const BorderSide(color: AppColors.border),
             ),
             child: Column(
               children: [

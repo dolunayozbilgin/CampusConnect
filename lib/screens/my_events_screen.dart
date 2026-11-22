@@ -128,7 +128,10 @@ class _MyEventCard extends StatelessWidget {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => EventDetailsScreen(event: event)),
+            MaterialPageRoute(
+              builder: (_) =>
+                  EventDetailsScreen(event: event, initiallyJoined: true),
+            ),
           );
         },
         child: Padding(

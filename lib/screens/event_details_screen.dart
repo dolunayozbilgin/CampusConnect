@@ -5,6 +5,7 @@ import '../utils/app_colors.dart';
 import '../widgets/event_cover.dart';
 import '../widgets/event_date_tile.dart';
 import '../widgets/event_tag.dart';
+import 'create_event_screen.dart';
 
 class EventDetailsScreen extends StatefulWidget {
   const EventDetailsScreen({super.key, required this.event});
@@ -18,14 +19,40 @@ class EventDetailsScreen extends StatefulWidget {
 class _EventDetailsScreenState extends State<EventDetailsScreen> {
   bool _joined = false;
   late int _going;
+  // Edit Event can hand back a changed copy, so keep our own reference.
+  late CampusEvent _event;
 
   @override
   void initState() {
     super.initState();
-    _going = widget.event.going;
+    _event = widget.event;
+    _going = _event.going;
   }
 
-  bool get _isFull => _going >= widget.event.capacity;
+  bool get _isFull => _going >= _event.capacity;
+
+  Future<void> _manageEvent() async {
+    final updated = await Navigator.push<CampusEvent>(
+      context,
+      MaterialPageRoute(builder: (_) => CreateEventScreen(event: _event)),
+    );
+    if (updated == null || !mounted) return;
+
+    if (updated.isCancelled) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(content: Text('${updated.title} was cancelled')),
+        );
+      return;
+    }
+
+    setState(() => _event = updated);
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(const SnackBar(content: Text('Event updated')));
+  }
 
   void _showComingSoon(String screen) {
     ScaffoldMessenger.of(context)
@@ -48,9 +75,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       ..showSnackBar(
         SnackBar(
           content: Text(
-            _joined
-                ? 'You joined ${widget.event.title}'
-                : 'You left ${widget.event.title}',
+            _joined ? 'You joined ${_event.title}' : 'You left ${_event.title}',
           ),
         ),
       );
@@ -58,7 +83,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final event = widget.event;
+    final event = _event;
 
     return Scaffold(
       appBar: AppBar(
@@ -217,7 +242,38 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-          child: _joined
+          child: event.isOrganizer
+              ? Row(
+                  children: [
+                    const Icon(
+                      Icons.check_circle_outline,
+                      size: 20,
+                      color: AppColors.tagGreenText,
+                    ),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        "You're organizing",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.tagGreenText,
+                        ),
+                      ),
+                    ),
+                    OutlinedButton(
+                      onPressed: _manageEvent,
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(0, 44),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text('Manage event'),
+                    ),
+                  ],
+                )
+              : _joined
               ? OutlinedButton.icon(
                   onPressed: _toggleJoin,
                   icon: const Icon(Icons.check, size: 18),

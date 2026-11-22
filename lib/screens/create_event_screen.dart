@@ -6,7 +6,11 @@ import '../utils/app_colors.dart';
 import 'event_details_screen.dart';
 
 class CreateEventScreen extends StatefulWidget {
-  const CreateEventScreen({super.key});
+  const CreateEventScreen({super.key, this.event});
+
+  /// When set, the form opens in Edit Event mode for this event and pops
+  /// with the updated (or cancelled) event.
+  final CampusEvent? event;
 
   @override
   State<CreateEventScreen> createState() => _CreateEventScreenState();
@@ -36,6 +40,76 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   DateTime? _date;
   TimeOfDay? _start;
   TimeOfDay? _end;
+  String _coverUrl = '';
+  late final String _initialSnapshot;
+
+  bool get _isEditing => widget.event != null;
+  int get _going => widget.event?.going ?? 0;
+
+  @override
+  void initState() {
+    super.initState();
+    final event = widget.event;
+    if (event != null) _fillFrom(event);
+    _initialSnapshot = _snapshot;
+  }
+
+  void _fillFrom(CampusEvent event) {
+    _titleController.text = event.title;
+    _descriptionController.text = event.description;
+    _capacityController.text = '${event.capacity}';
+    _category = _categories.contains(event.category) ? event.category : null;
+    _date = event.day;
+    _dateController.text = _formatDate(event.day);
+    _coverUrl = event.imageUrl;
+
+    // "16:00–18:00" -> two TimeOfDay values
+    final times = event.timeRange.split('–');
+    if (times.length == 2) {
+      _start = _parseTime(times[0]);
+      _end = _parseTime(times[1]);
+      if (_start != null) _startController.text = _formatTime(_start!);
+      if (_end != null) _endController.text = _formatTime(_end!);
+    }
+
+    // "FENS, Room 204" -> FENS + "Room 204"; anything else goes under Other.
+    final comma = event.location.indexOf(', ');
+    final head = comma == -1
+        ? event.location
+        : event.location.substring(0, comma);
+    if (_locations.contains(head)) {
+      _location = head;
+      _locationDetailsController.text = comma == -1
+          ? ''
+          : event.location.substring(comma + 2);
+    } else {
+      _location = 'Other';
+      _locationDetailsController.text = event.location;
+    }
+  }
+
+  TimeOfDay? _parseTime(String text) {
+    final parts = text.trim().split(':');
+    if (parts.length != 2) return null;
+    final hour = int.tryParse(parts[0]);
+    final minute = int.tryParse(parts[1]);
+    if (hour == null || minute == null) return null;
+    return TimeOfDay(hour: hour, minute: minute);
+  }
+
+  // Everything the form holds, as one string, so we can tell if it changed.
+  String get _snapshot => [
+    _titleController.text.trim(),
+    _descriptionController.text.trim(),
+    _capacityController.text.trim(),
+    _locationDetailsController.text.trim(),
+    _category,
+    _location,
+    _dateController.text,
+    _startController.text,
+    _endController.text,
+    _coverUrl,
+  ].join('|');
 
   @override
   void dispose() {
@@ -49,21 +123,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     super.dispose();
   }
 
-  // Anything typed or picked counts as an unsaved change.
-  bool get _hasChanges {
-    final texts = [
-      _titleController,
-      _descriptionController,
-      _capacityController,
-      _locationDetailsController,
-    ];
-    return texts.any((c) => c.text.trim().isNotEmpty) ||
-        _category != null ||
-        _location != null ||
-        _date != null ||
-        _start != null ||
-        _end != null;
-  }
+  bool get _hasChanges => _snapshot != _initialSnapshot;
 
   String _two(int n) => n.toString().padLeft(2, '0');
   String _formatTime(TimeOfDay t) => '${_two(t.hour)}:${_two(t.minute)}';
@@ -72,10 +132,14 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
   Future<void> _pickDate() async {
     final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    // An event being edited may already be in the past; the picker needs
+    // its first selectable day to be on or before the initial one.
+    final first = _date != null && _date!.isBefore(today) ? _date! : today;
     final picked = await showDatePicker(
       context: context,
-      initialDate: _date ?? now,
-      firstDate: DateTime(now.year, now.month, now.day),
+      initialDate: _date ?? today,
+      firstDate: first,
       lastDate: DateTime(now.year + 1, 12, 31),
     );
     if (picked == null) return;
@@ -116,6 +180,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     if (text.isEmpty) return 'Enter a capacity';
     final number = int.tryParse(text);
     if (number == null || number < 1) return 'Use a whole number above 0';
+    if (number < _going) return 'At least $_going';
     return null;
   }
 
@@ -129,22 +194,85 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     return null;
   }
 
+  String get _timeRange => '${_formatTime(_start!)}–${_formatTime(_end!)}';
+
+  String get _fullLocation {
+    final details = _locationDetailsController.text.trim();
+    return details.isEmpty ? _location! : '$_location, $details';
+  }
+
+  // Swap the old event for the new one so the feed shows the change.
+  void _replaceInList(CampusEvent updated) {
+    final index = sampleEvents.indexOf(widget.event!);
+    if (index != -1) sampleEvents[index] = updated;
+  }
+
+  void _saveChanges() {
+    if (!_formKey.currentState!.validate()) return;
+
+    final updated = widget.event!.copyWith(
+      title: _titleController.text.trim(),
+      category: _category,
+      day: _date,
+      timeRange: _timeRange,
+      location: _fullLocation,
+      capacity: int.parse(_capacityController.text.trim()),
+      imageUrl: _coverUrl,
+      description: _descriptionController.text.trim(),
+    );
+    _replaceInList(updated);
+    // Navigator.pop skips the PopScope guard, so no discard prompt here.
+    Navigator.pop(context, updated);
+  }
+
+  Future<void> _confirmCancelEvent() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Cancel this event?'),
+        content: Text(
+          _going > 0
+              ? '$_going students are going. They will see the event as '
+                    'cancelled. This cannot be undone.'
+              : 'The event will be removed from the feed. This cannot be '
+                    'undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Keep event'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('Cancel event'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    final cancelled = widget.event!.copyWith(isCancelled: true);
+    _replaceInList(cancelled);
+    Navigator.pop(context, cancelled);
+  }
+
   void _publish() {
     if (!_formKey.currentState!.validate()) return;
 
-    final details = _locationDetailsController.text.trim();
     final event = CampusEvent(
       title: _titleController.text.trim(),
       category: _category!,
       day: _date!,
-      timeRange: '${_formatTime(_start!)}–${_formatTime(_end!)}',
-      location: details.isEmpty ? _location! : '$_location, $details',
+      timeRange: _timeRange,
+      location: _fullLocation,
       going: 0,
       capacity: int.parse(_capacityController.text.trim()),
       imageUrl: '',
       initials: const [],
       description: _descriptionController.text.trim(),
       host: 'You',
+      isOrganizer: true,
     );
     sampleEvents.insert(0, event);
 
@@ -161,8 +289,12 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     final discard = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Discard this event?'),
-        content: const Text('What you entered will be lost.'),
+        title: Text(_isEditing ? 'Discard changes?' : 'Discard this event?'),
+        content: Text(
+          _isEditing
+              ? 'Your edits to this event will be lost.'
+              : 'What you entered will be lost.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
@@ -190,8 +322,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         appBar: AppBar(
           centerTitle: false,
           titleSpacing: 0,
-          title: const Text(
-            'Create Event',
+          title: Text(
+            _isEditing ? 'Edit Event' : 'Create Event',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
           ),
           backgroundColor: AppColors.background,
@@ -205,8 +337,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
-                    'Bring your campus together · * Required fields',
+                  Text(
+                    _isEditing
+                        ? 'Update your event · * Required fields'
+                        : 'Bring your campus together · * Required fields',
                     style: TextStyle(
                       fontSize: 13,
                       color: AppColors.textSecondary,
@@ -386,20 +520,41 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       hintText: 'e.g. Room 204 (optional)',
                     ),
                   ),
+                  if (_going > 0) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      '$_going students going. Capacity must be at least '
+                      '$_going.',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.tagGreenText,
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 16),
 
                   const _Label('Cover image (optional)'),
-                  _UploadCoverTile(
-                    onTap: () {
-                      ScaffoldMessenger.of(context)
-                        ..hideCurrentSnackBar()
-                        ..showSnackBar(
-                          const SnackBar(
-                            content: Text('Cover upload is coming soon'),
-                          ),
-                        );
-                    },
-                  ),
+                  if (_coverUrl.isEmpty)
+                    _UploadCoverTile(onTap: _coverComingSoon)
+                  else
+                    _CurrentCoverTile(
+                      onReplace: _coverComingSoon,
+                      onRemove: () => setState(() => _coverUrl = ''),
+                    ),
+                  if (_isEditing) ...[
+                    const SizedBox(height: 20),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton(
+                        onPressed: _confirmCancelEvent,
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.error,
+                          padding: EdgeInsets.zero,
+                        ),
+                        child: const Text('Cancel event'),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -408,15 +563,50 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         bottomNavigationBar: SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-            child: FilledButton.icon(
-              onPressed: _publish,
-              icon: const Icon(Icons.arrow_forward, size: 18),
-              label: const Text('Publish event'),
-            ),
+            child: _isEditing
+                ? Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: OutlinedButton(
+                          // maybePop goes through the PopScope guard.
+                          onPressed: () => Navigator.maybePop(context),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: const Text('Discard'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 5,
+                        child: FilledButton(
+                          onPressed: _saveChanges,
+                          child: const Text('Save changes'),
+                        ),
+                      ),
+                    ],
+                  )
+                : FilledButton.icon(
+                    onPressed: _publish,
+                    icon: const Icon(Icons.arrow_forward, size: 18),
+                    label: const Text('Publish event'),
+                  ),
           ),
         ),
       ),
     );
+  }
+
+  void _coverComingSoon() {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(content: Text('Cover upload is coming soon')),
+      );
   }
 }
 
@@ -483,6 +673,49 @@ class _UploadCoverTile extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _CurrentCoverTile extends StatelessWidget {
+  const _CurrentCoverTile({required this.onReplace, required this.onRemove});
+
+  final VoidCallback onReplace;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(left: 14, right: 4),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.photo_camera_outlined,
+            size: 20,
+            color: AppColors.textSecondary,
+          ),
+          const SizedBox(width: 10),
+          const Expanded(
+            child: Text(
+              'Current cover',
+              style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+            ),
+          ),
+          TextButton(onPressed: onReplace, child: const Text('Replace')),
+          TextButton(
+            onPressed: onRemove,
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.textSecondary,
+            ),
+            child: const Text('Remove'),
+          ),
+        ],
       ),
     );
   }

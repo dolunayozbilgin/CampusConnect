@@ -41,6 +41,8 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
   List<CampusEvent> get _visible {
     final query = _query.trim().toLowerCase();
     return sampleEvents.where((event) {
+      // Cancelled events only show up in My Events.
+      if (event.isCancelled) return false;
       final categoryOk = _category == 'All' || event.category == _category;
       if (!categoryOk) return false;
       if (query.isEmpty) return true;

@@ -27,6 +27,7 @@ final List<CampusEvent> sampleEvents = [
     initials: ['DY', 'EA', 'KS'],
     description: 'A relaxed walk around campus to practise composition and light. Any camera or phone is welcome.',
     host: 'Photography Society',
+    isOrganizer: true,
   ),
   CampusEvent(
     title: 'Campus 5K',

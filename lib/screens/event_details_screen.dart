@@ -7,21 +7,27 @@ import '../widgets/event_date_tile.dart';
 import '../widgets/event_tag.dart';
 
 class EventDetailsScreen extends StatefulWidget {
-  const EventDetailsScreen({super.key, required this.event});
+  const EventDetailsScreen({
+    super.key,
+    required this.event,
+    this.initiallyJoined = false,
+  });
 
   final CampusEvent event;
+  final bool initiallyJoined;
 
   @override
   State<EventDetailsScreen> createState() => _EventDetailsScreenState();
 }
 
 class _EventDetailsScreenState extends State<EventDetailsScreen> {
-  bool _joined = false;
+  late bool _joined;
   late int _going;
 
   @override
   void initState() {
     super.initState();
+    _joined = widget.initiallyJoined;
     _going = widget.event.going;
   }
 

@@ -92,14 +92,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     background: AppColors.tagGreen,
                     foreground: AppColors.tagGreenText,
                   ),
-                  if (_isFull) ...[
-                    const SizedBox(width: 8),
-                    const EventTag(
-                      label: 'Full',
-                      background: AppColors.tagAmber,
-                      foreground: AppColors.tagAmberText,
-                    ),
-                  ],
                 ],
               ),
               const SizedBox(height: 10),
@@ -121,12 +113,41 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              _InfoRow(
-                icon: Icons.calendar_today_outlined,
-                text: formatEventDay(event.day),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Column(
+                  children: [
+                    _InfoRow(
+                      icon: Icons.calendar_today_outlined,
+                      text: formatEventDay(event.day),
+                      subtitle: event.timeRange,
+                    ),
+                    _InfoRow(
+                      icon: Icons.location_on_outlined,
+                      text: event.location,
+                    ),
+                    _InfoRow(
+                      icon: Icons.people_outline,
+                      text: '$_going / ${event.capacity} going',
+                      trailing: EventTag(
+                        label: _isFull
+                            ? 'Full'
+                            : '${event.capacity - _going} spots left',
+                        background: AppColors.tagAmber,
+                        foreground: AppColors.tagAmberText,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              _InfoRow(icon: Icons.schedule, text: event.timeRange),
-              _InfoRow(icon: Icons.location_on_outlined, text: event.location),
               const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(12),
@@ -233,37 +254,50 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 }
 
 class _InfoRow extends StatelessWidget {
-  const _InfoRow({required this.icon, required this.text});
+  const _InfoRow({
+    required this.icon,
+    required this.text,
+    this.subtitle,
+    this.trailing,
+  });
 
   final IconData icon;
   final String text;
+  final String? subtitle;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: AppColors.primaryLight,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, size: 18, color: AppColors.primary),
-          ),
+          Icon(icon, size: 20, color: AppColors.textSecondary),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textPrimary,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  text,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                if (subtitle != null)
+                  Text(
+                    subtitle!,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+              ],
             ),
           ),
+          ?trailing,
         ],
       ),
     );

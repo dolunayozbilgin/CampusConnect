@@ -9,6 +9,7 @@ import '../widgets/event_date_tile.dart';
 import '../widgets/event_tag.dart';
 import 'event_details_screen.dart';
 import 'my_events_screen.dart';
+import 'profile_screen.dart';
 
 class EventFeedScreen extends StatefulWidget {
   const EventFeedScreen({super.key});
@@ -66,7 +67,13 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 440),
         child: Scaffold(
-          body: SafeArea(child: _buildTab()),
+          body: SafeArea(
+            child: switch (_tab) {
+              0 => _buildFeed(),
+              1 => const MyEventsScreen(),
+              _ => const ProfileScreen(),
+            },
+          ),
           bottomNavigationBar: NavigationBar(
             selectedIndex: _tab,
             onDestinationSelected: (index) => setState(() => _tab = index),
@@ -91,36 +98,6 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildTab() {
-    if (_tab == 0) return _buildFeed();
-    if (_tab == 1) return const MyEventsScreen();
-    return _buildPlaceholder();
-  }
-
-  Widget _buildPlaceholder() {
-    const title = 'Profile';
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-          ),
-          const Spacer(),
-          const Center(
-            child: Text(
-              'This screen is next.',
-              style: TextStyle(color: AppColors.textSecondary),
-            ),
-          ),
-          const Spacer(),
-        ],
       ),
     );
   }

@@ -20,3 +20,29 @@ Developed for **CS310 – Mobile Application Development**, Sabancı University.
 
 - Flutter (Dart)
 - Firebase Authentication, Cloud Firestore, Firebase Storage
+
+## Running the App
+
+**Flutter version:** 3.47.7 (stable channel, Dart 3.13.5)
+
+1. Install Flutter 3.47.7 and check the setup with `flutter doctor`.
+2. Clone the repository and open the project folder:
+   ```bash
+   git clone https://github.com/dolunayozbilgin/campusconnect.git
+   cd campusconnect
+   ```
+3. Get the packages:
+   ```bash
+   flutter pub get
+   ```
+4. Start an Android emulator or iOS simulator, then run:
+   ```bash
+   flutter run
+   ```
+
+To run the widget tests:
+```bash
+flutter test
+```
+
+Login and sign up are UI-only in this step: any valid-looking input opens the event feed. All data is placeholder data until Firebase is added in Step 3.

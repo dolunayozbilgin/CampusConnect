@@ -11,9 +11,15 @@ import 'create_event_screen.dart';
 import 'discussion_screen.dart';
 
 class EventDetailsScreen extends StatefulWidget {
-  const EventDetailsScreen({super.key, required this.event, this.banner});
+  const EventDetailsScreen({
+    super.key,
+    required this.event,
+    this.initiallyJoined = false,
+    this.banner,
+  });
 
   final CampusEvent event;
+  final bool initiallyJoined;
   // Optional success banner to show on open, e.g. right after publishing.
   final SuccessBanner? banner;
 
@@ -22,7 +28,7 @@ class EventDetailsScreen extends StatefulWidget {
 }
 
 class _EventDetailsScreenState extends State<EventDetailsScreen> {
-  bool _joined = false;
+  late bool _joined;
   late int _going;
   // Edit Event can hand back a changed copy, so keep our own reference.
   late CampusEvent _event;
@@ -31,6 +37,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   @override
   void initState() {
     super.initState();
+    _joined = widget.initiallyJoined;
     _event = widget.event;
     _banner = widget.banner;
     _going = _event.going;

@@ -9,6 +9,7 @@ import '../widgets/event_date_tile.dart';
 import '../widgets/event_tag.dart';
 import 'create_event_screen.dart';
 import 'event_details_screen.dart';
+import 'my_events_screen.dart';
 
 class EventFeedScreen extends StatefulWidget {
   const EventFeedScreen({super.key});
@@ -68,7 +69,7 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 440),
         child: Scaffold(
-          body: SafeArea(child: _tab == 0 ? _buildFeed() : _buildPlaceholder()),
+          body: SafeArea(child: _buildTab()),
           bottomNavigationBar: NavigationBar(
             selectedIndex: _tab,
             onDestinationSelected: (index) => setState(() => _tab = index),
@@ -97,8 +98,14 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
     );
   }
 
+  Widget _buildTab() {
+    if (_tab == 0) return _buildFeed();
+    if (_tab == 1) return const MyEventsScreen();
+    return _buildPlaceholder();
+  }
+
   Widget _buildPlaceholder() {
-    final title = _tab == 1 ? 'My Events' : 'Profile';
+    const title = 'Profile';
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
       child: Column(

@@ -261,12 +261,14 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final event = CampusEvent(
+      id: DateTime.now().microsecondsSinceEpoch.toString(),
       title: _titleController.text.trim(),
       category: _category!,
       day: _date!,
       timeRange: _timeRange,
       location: _fullLocation,
-      going: 0,
+      // The organizer counts as the first person going.
+      going: 1,
       capacity: int.parse(_capacityController.text.trim()),
       imageUrl: '',
       initials: const [],

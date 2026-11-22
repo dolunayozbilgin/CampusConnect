@@ -5,7 +5,10 @@ import '../utils/app_colors.dart';
 import '../widgets/event_cover.dart';
 import '../widgets/event_date_tile.dart';
 import '../widgets/event_tag.dart';
+import '../data/sample_people.dart';
+import 'attendees_screen.dart';
 import 'create_event_screen.dart';
+import 'discussion_screen.dart';
 
 class EventDetailsScreen extends StatefulWidget {
   const EventDetailsScreen({super.key, required this.event});
@@ -31,6 +34,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
   bool get _isFull => _going >= _event.capacity;
 
+  String get _commentLabel {
+    final count = commentsFor(_event.id).length;
+    return count == 1 ? '1 comment' : '$count comments';
+  }
+
   Future<void> _manageEvent() async {
     final updated = await Navigator.push<CampusEvent>(
       context,
@@ -52,12 +60,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(const SnackBar(content: Text('Event updated')));
-  }
-
-  void _showComingSoon(String screen) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text('$screen screen is coming soon')));
   }
 
   // "Photography Society" -> "PS"
@@ -227,13 +229,32 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 icon: Icons.people_outline,
                 label: 'Attendees',
                 value: '$_going going',
-                onTap: () => _showComingSoon('Attendees'),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AttendeesScreen(
+                      event: event,
+                      going: _going,
+                      includesMe: _joined || event.isOrganizer,
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 10),
               _LinkRow(
                 icon: Icons.chat_bubble_outline,
                 label: 'Discussion',
-                onTap: () => _showComingSoon('Discussion'),
+                value: _commentLabel,
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => DiscussionScreen(event: event),
+                    ),
+                  );
+                  // Comments may have been posted or deleted.
+                  if (mounted) setState(() {});
+                },
               ),
             ],
           ),

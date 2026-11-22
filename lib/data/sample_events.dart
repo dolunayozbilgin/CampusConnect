@@ -3,6 +3,7 @@ import '../models/campus_event.dart';
 // Placeholder events for the feed. Real data comes in with Firebase later.
 final List<CampusEvent> sampleEvents = [
   CampusEvent(
+    id: 'film-night',
     title: 'Campus Film Night',
     category: 'Arts',
     day: DateTime(2026, 11, 18),
@@ -16,6 +17,7 @@ final List<CampusEvent> sampleEvents = [
     host: 'Film Club',
   ),
   CampusEvent(
+    id: 'photo-walk',
     title: 'Photography Walk',
     category: 'Arts',
     day: DateTime(2026, 11, 18),
@@ -29,6 +31,7 @@ final List<CampusEvent> sampleEvents = [
     host: 'Photography Society',
   ),
   CampusEvent(
+    id: 'campus-5k',
     title: 'Campus 5K',
     category: 'Sports',
     day: DateTime(2026, 11, 21),
@@ -42,6 +45,7 @@ final List<CampusEvent> sampleEvents = [
     host: 'Running Club',
   ),
   CampusEvent(
+    id: 'study-group',
     title: 'Midterm Study Group',
     category: 'Academic',
     day: DateTime(2026, 11, 19),
@@ -55,6 +59,7 @@ final List<CampusEvent> sampleEvents = [
     host: 'CS Student Society',
   ),
   CampusEvent(
+    id: 'shelter-visit',
     title: 'Shelter Visit',
     category: 'Volunteering',
     day: DateTime(2026, 11, 22),

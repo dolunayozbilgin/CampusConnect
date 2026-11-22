@@ -1,5 +1,6 @@
 class CampusEvent {
   const CampusEvent({
+    required this.id,
     required this.title,
     required this.category,
     required this.day,
@@ -15,6 +16,8 @@ class CampusEvent {
     this.isCancelled = false,
   });
 
+  // Stays the same through edits, so comments can be keyed by it.
+  final String id;
   final String title;
   final String category;
   final DateTime day;
@@ -44,6 +47,7 @@ class CampusEvent {
     bool? isCancelled,
   }) {
     return CampusEvent(
+      id: id,
       title: title ?? this.title,
       category: category ?? this.category,
       day: day ?? this.day,
@@ -85,4 +89,11 @@ String formatEventDay(DateTime day) {
 
 String eventMonthLabel(DateTime day) {
   return _months[day.month - 1].toUpperCase();
+}
+
+// "16 Nov · 10:30"
+String formatShortDayTime(DateTime time) {
+  final hour = time.hour.toString().padLeft(2, '0');
+  final minute = time.minute.toString().padLeft(2, '0');
+  return '${time.day} ${_months[time.month - 1]} · $hour:$minute';
 }

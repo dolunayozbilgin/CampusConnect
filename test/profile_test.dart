@@ -1,3 +1,4 @@
+import 'package:campusconnect/data/sample_profile.dart';
 import 'package:campusconnect/screens/login_screen.dart';
 import 'package:campusconnect/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,9 @@ void _useSmallPhone(WidgetTester tester) {
 }
 
 void main() {
+  // Saving an edit changes the shared profile, so start each test fresh.
+  tearDown(() => currentProfile = sampleProfile);
+
   testWidgets('profile shows the placeholder user', (tester) async {
     await tester.pumpWidget(_app());
 

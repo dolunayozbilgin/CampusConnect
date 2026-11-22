@@ -6,6 +6,7 @@ import '../utils/app_colors.dart';
 import '../widgets/event_tag.dart';
 import '../widgets/profile_avatar.dart';
 import '../widgets/stat_tile.dart';
+import 'edit_profile_screen.dart';
 import 'login_screen.dart';
 
 // Shown inside the "Profile" tab of the bottom navigation, so it has no
@@ -20,6 +21,17 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   UserProfile _profile = sampleProfile;
   bool _notifications = true;
+
+  Future<void> _openEditProfile() async {
+    final updated = await Navigator.push<UserProfile>(
+      context,
+      MaterialPageRoute(builder: (_) => EditProfileScreen(profile: _profile)),
+    );
+    // null means the user went back without saving.
+    if (updated != null) {
+      setState(() => _profile = updated);
+    }
+  }
 
   void _confirmLogOut() {
     showDialog(
@@ -56,11 +68,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            'Profile',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+          Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Profile',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                ),
+              ),
+              TextButton.icon(
+                onPressed: _openEditProfile,
+                icon: const Icon(Icons.edit_outlined, size: 18),
+                label: const Text('Edit'),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           _ProfileHeader(profile: _profile),
           const SizedBox(height: 12),
           // Three equal boxes that share the row on any screen width.

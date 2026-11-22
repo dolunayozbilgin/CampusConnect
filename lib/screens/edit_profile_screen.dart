@@ -29,6 +29,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late int _year;
   late Set<String> _interests;
   bool _showInterestError = false;
+  bool _saved = false;
 
   @override
   void initState() {
@@ -76,6 +77,42 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     });
   }
 
+  bool get _hasChanges {
+    final profile = widget.profile;
+    return _nameController.text.trim() != profile.name ||
+        _bioController.text.trim() != profile.bio ||
+        _faculty != profile.faculty ||
+        _year != profile.year ||
+        _interests.length != profile.interests.length ||
+        !_interests.containsAll(profile.interests);
+  }
+
+  // Called when Back or Cancel is pressed while there are unsaved changes.
+  Future<void> _confirmDiscard() async {
+    final discard = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Discard changes?'),
+        content: const Text('Your edits to the profile will be lost.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Keep editing'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('Discard'),
+          ),
+        ],
+      ),
+    );
+    if (discard == true && mounted) {
+      setState(() => _saved = true);
+      Navigator.pop(context);
+    }
+  }
+
   void _showPhotoMessage() {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -108,6 +145,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(dialogContext);
+              setState(() => _saved = true);
               Navigator.pop(context, updated);
             },
             child: const Text('OK'),
@@ -121,7 +159,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     final profile = widget.profile;
 
-    return Scaffold(
+    // PopScope stops Back from silently throwing away edits.
+    return PopScope(
+      canPop: _saved || !_hasChanges,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _confirmDiscard();
+      },
+      child: Scaffold(
       appBar: AppBar(
         centerTitle: false,
         titleSpacing: 0,
@@ -166,6 +210,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   controller: _nameController,
                   textCapitalization: TextCapitalization.words,
                   validator: _validateName,
+                  onChanged: (_) => setState(() {}),
                   decoration: const InputDecoration(
                     hintText: 'Name and surname',
                   ),
@@ -248,6 +293,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 TextFormField(
                   controller: _bioController,
                   validator: _validateBio,
+                  onChanged: (_) => setState(() {}),
                   minLines: 3,
                   maxLines: 5,
                   decoration: const InputDecoration(
@@ -316,6 +362,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 }

@@ -6,14 +6,23 @@ import '../utils/app_colors.dart';
 import '../widgets/interest_chip.dart';
 import '../widgets/outline_action_button.dart';
 import '../widgets/profile_avatar.dart';
+import 'event_feed_screen.dart';
 
 // Form for changing photo, name, faculty, year, bio and interests. The
 // university email is read-only. Returns the updated profile to the
 // Profile screen with Navigator.pop.
+//
+// With onboarding: true the same form is the "Complete your profile" step
+// shown right after Sign up: Save profile or Skip both open the Event Feed.
 class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({super.key, required this.profile});
+  const EditProfileScreen({
+    super.key,
+    required this.profile,
+    this.onboarding = false,
+  });
 
   final UserProfile profile;
+  final bool onboarding;
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -113,7 +122,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  void _openFeed() {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const EventFeedScreen()),
+      (route) => false,
+    );
+  }
+
   void _cancel() {
+    if (widget.onboarding) {
+      _openFeed();
+      return;
+    }
     if (_hasChanges) {
       _confirmDiscard();
     } else {
@@ -144,6 +165,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       interests: profileInterests.where(_interests.contains).toList(),
     );
 
+    if (widget.onboarding) {
+      currentProfile = updated;
+      _openFeed();
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -169,7 +196,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     // PopScope stops Back from silently throwing away edits.
     return PopScope(
-      canPop: _saved || !_hasChanges,
+      canPop: widget.onboarding || _saved || !_hasChanges,
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) _confirmDiscard();
       },
@@ -177,8 +204,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         appBar: AppBar(
           centerTitle: false,
           titleSpacing: 0,
-          title: const Text(
-            'Edit Profile',
+          title: Text(
+            widget.onboarding ? 'Complete your profile' : 'Edit Profile',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
           ),
           backgroundColor: AppColors.background,
@@ -359,7 +386,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               children: [
                 Expanded(
                   child: OutlineActionButton(
-                    label: 'Cancel',
+                    label: widget.onboarding ? 'Skip' : 'Cancel',
                     onPressed: _cancel,
                   ),
                 ),

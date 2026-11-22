@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/sample_events.dart';
 import '../models/campus_event.dart';
+import '../models/event_filters.dart';
 import '../utils/app_colors.dart';
 import '../widgets/attendee_initials.dart';
 import '../widgets/event_cover.dart';
@@ -9,6 +10,7 @@ import '../widgets/event_date_tile.dart';
 import '../widgets/event_tag.dart';
 import 'create_event_screen.dart';
 import 'event_details_screen.dart';
+import 'filters_screen.dart';
 import 'my_events_screen.dart';
 import 'profile_screen.dart';
 
@@ -33,6 +35,7 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
   int _tab = 0;
   String _category = 'All';
   String _query = '';
+  EventFilters _filters = const EventFilters();
 
   @override
   void dispose() {
@@ -47,6 +50,7 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
       if (event.isCancelled) return false;
       final categoryOk = _category == 'All' || event.category == _category;
       if (!categoryOk) return false;
+      if (!_filters.matches(event)) return false;
       if (query.isEmpty) return true;
       return event.title.toLowerCase().contains(query) ||
           event.location.toLowerCase().contains(query);
@@ -58,7 +62,19 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
     setState(() {
       _query = '';
       _category = 'All';
+      _filters = const EventFilters();
     });
+  }
+
+  Future<void> _openFilters() async {
+    final chosen = await Navigator.push<EventFilters>(
+      context,
+      MaterialPageRoute(builder: (_) => FiltersScreen(initial: _filters)),
+    );
+    // null means the user went back without applying.
+    if (chosen != null) {
+      setState(() => _filters = chosen);
+    }
   }
 
   @override
@@ -150,12 +166,14 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
               hintText: 'Search campus events',
               prefixIcon: const Icon(Icons.search, size: 20),
               suffixIcon: IconButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Filters are next')),
-                  );
-                },
-                icon: const Icon(Icons.tune, size: 20),
+                onPressed: _openFilters,
+                tooltip: 'Filters',
+                // Blue icon tells the user some filters are on.
+                icon: Icon(
+                  Icons.tune,
+                  size: 20,
+                  color: _filters.isActive ? AppColors.primary : null,
+                ),
               ),
             ),
           ),

@@ -8,6 +8,7 @@ import '../widgets/event_cover.dart';
 import '../widgets/event_date_tile.dart';
 import '../widgets/event_tag.dart';
 import 'event_details_screen.dart';
+import 'my_events_screen.dart';
 import 'profile_screen.dart';
 
 class EventFeedScreen extends StatefulWidget {
@@ -69,8 +70,8 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
           body: SafeArea(
             child: switch (_tab) {
               0 => _buildFeed(),
-              2 => const ProfileScreen(),
-              _ => _buildPlaceholder(),
+              1 => const MyEventsScreen(),
+              _ => const ProfileScreen(),
             },
           ),
           bottomNavigationBar: NavigationBar(
@@ -97,30 +98,6 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildPlaceholder() {
-    const title = 'My Events';
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-          ),
-          const Spacer(),
-          const Center(
-            child: Text(
-              'This screen is next.',
-              style: TextStyle(color: AppColors.textSecondary),
-            ),
-          ),
-          const Spacer(),
-        ],
       ),
     );
   }

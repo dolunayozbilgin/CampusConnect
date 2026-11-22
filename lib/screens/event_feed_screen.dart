@@ -5,6 +5,7 @@ import '../models/campus_event.dart';
 import '../utils/app_colors.dart';
 import '../widgets/attendee_initials.dart';
 import '../widgets/event_cover.dart';
+import '../widgets/event_date_tile.dart';
 import '../widgets/event_tag.dart';
 import 'event_details_screen.dart';
 import 'my_events_screen.dart';
@@ -330,7 +331,7 @@ class _EventCard extends StatelessWidget {
                       Positioned(
                         left: 10,
                         bottom: 10,
-                        child: _DateTile(day: event.day),
+                        child: EventDateTile(day: event.day),
                       ),
                     ],
                   ),
@@ -421,42 +422,6 @@ class _EventCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _DateTile extends StatelessWidget {
-  const _DateTile({required this.day});
-
-  final DateTime day;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 64,
-      height: 64,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: AppColors.cover,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            eventMonthLabel(day),
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: AppColors.tagGreenText,
-            ),
-          ),
-          Text(
-            '${day.day}',
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-          ),
-        ],
       ),
     );
   }

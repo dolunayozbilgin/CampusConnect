@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../models/user_profile.dart';
 import '../utils/app_colors.dart';
-import 'event_feed_screen.dart';
+import 'edit_profile_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -67,6 +68,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return null;
   }
 
+  // Name and email come from this form; the rest is filled in on
+  // Complete your profile (or skipped).
+  void _openCompleteProfile() {
+    final profile = UserProfile(
+      name: _nameController.text.trim(),
+      email: _emailController.text.trim(),
+      faculty: 'Engineering',
+      year: 1,
+      bio: '',
+      interests: const [],
+    );
+    // Keep Login underneath so Back from the next screen returns there.
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EditProfileScreen(profile: profile, onboarding: true),
+      ),
+      (route) => route.isFirst,
+    );
+  }
+
   void _submit() {
     final isValid = _formKey.currentState!.validate();
     if (!isValid) return;
@@ -76,17 +98,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
       builder: (dialogContext) => AlertDialog(
         title: const Text('Account created'),
         content: Text(
-          'Welcome, ${_nameController.text.trim()}. You can look around the event feed next.',
+          'Welcome, ${_nameController.text.trim()}. Let\'s finish your profile next.',
         ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(dialogContext);
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const EventFeedScreen()),
-                (route) => false,
-              );
+              _openCompleteProfile();
             },
             child: const Text('OK'),
           ),

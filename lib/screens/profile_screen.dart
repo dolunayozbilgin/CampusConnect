@@ -19,7 +19,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  UserProfile _profile = sampleProfile;
+  UserProfile _profile = currentProfile;
 
   Future<void> _openEditProfile() async {
     final updated = await Navigator.push<UserProfile>(
@@ -28,6 +28,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
     // null means the user went back without saving.
     if (updated != null) {
+      currentProfile = updated;
       setState(() => _profile = updated);
     }
   }

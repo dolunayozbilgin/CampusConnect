@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../utils/app_colors.dart';
 import 'event_feed_screen.dart';
+import 'reset_password_screen.dart';
 import 'sign_up_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -185,7 +186,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   alignment: Alignment.centerLeft,
                   child: TextButton(
                     style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ResetPasswordScreen(),
+                        ),
+                      );
+                    },
                     child: const Text(
                       'Forgot password?',
                       style: TextStyle(

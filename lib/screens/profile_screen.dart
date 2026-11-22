@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/sample_profile.dart';
 import '../models/user_profile.dart';
 import '../utils/app_colors.dart';
+import '../widgets/event_tag.dart';
 import '../widgets/profile_avatar.dart';
 import '../widgets/stat_tile.dart';
 
@@ -54,7 +55,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ],
           ),
+          const SizedBox(height: 24),
+          const _SectionTitle('Interests'),
+          const SizedBox(height: 10),
+          // Wrap moves chips to the next line instead of overflowing.
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final interest in _profile.interests)
+                EventTag(
+                  label: interest,
+                  background: AppColors.primaryLight,
+                  foreground: AppColors.primary,
+                ),
+            ],
+          ),
         ],
+      ),
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+        color: AppColors.textPrimary,
       ),
     );
   }

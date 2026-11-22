@@ -31,3 +31,7 @@ const UserProfile sampleProfile = UserProfile(
       'runs around campus.',
   interests: ['Technology', 'Sports', 'Board games'],
 );
+
+// The signed-in user's profile for this session. Profile, Edit Profile and
+// Complete your profile all read and update it until Firebase is added.
+UserProfile currentProfile = sampleProfile;

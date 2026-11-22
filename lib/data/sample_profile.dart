@@ -26,7 +26,8 @@ const UserProfile sampleProfile = UserProfile(
   email: 'alp.gul@sabanciuniv.edu',
   faculty: 'Engineering',
   year: 2,
-  bio: 'Engineering student into robotics, film nights and early morning '
+  bio:
+      'Engineering student into robotics, film nights and early morning '
       'runs around campus.',
   interests: ['Technology', 'Sports', 'Board games'],
 );

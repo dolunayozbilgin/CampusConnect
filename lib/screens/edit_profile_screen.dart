@@ -166,165 +166,196 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         if (!didPop) _confirmDiscard();
       },
       child: Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        titleSpacing: 0,
-        title: const Text(
-          'Edit Profile',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+        appBar: AppBar(
+          centerTitle: false,
+          titleSpacing: 0,
+          title: const Text(
+            'Edit Profile',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+          ),
+          backgroundColor: AppColors.background,
+          scrolledUnderElevation: 0,
         ),
-        backgroundColor: AppColors.background,
-        scrolledUnderElevation: 0,
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Photo row
+                  Row(
+                    children: [
+                      ProfileAvatar(name: profile.name, radius: 20),
+                      const SizedBox(width: 10),
+                      TextButton(
+                        onPressed: _showPhotoMessage,
+                        child: const Text('Change photo'),
+                      ),
+                      const Spacer(),
+                      TextButton(
+                        onPressed: _showPhotoMessage,
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.textSecondary,
+                        ),
+                        child: const Text('Remove photo'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  const _FieldLabel('Full name *'),
+                  TextFormField(
+                    controller: _nameController,
+                    textCapitalization: TextCapitalization.words,
+                    validator: _validateName,
+                    onChanged: (_) => setState(() {}),
+                    decoration: const InputDecoration(
+                      hintText: 'Name and surname',
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Email comes from the university account, so it is locked.
+                  const _FieldLabel('University email *'),
+                  TextFormField(
+                    initialValue: profile.email,
+                    readOnly: true,
+                    enabled: false,
+                    style: const TextStyle(color: AppColors.textSecondary),
+                    decoration: const InputDecoration(
+                      fillColor: AppColors.background,
+                      suffixIcon: Icon(Icons.lock_outline, size: 18),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Faculty and year side by side; Expanded shares the width
+                  // so the dropdowns never overflow on small phones.
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const _FieldLabel('Faculty *'),
+                            DropdownButtonFormField<String>(
+                              initialValue: _faculty,
+                              isExpanded: true,
+                              items: [
+                                for (final faculty in profileFaculties)
+                                  DropdownMenuItem(
+                                    value: faculty,
+                                    child: Text(faculty),
+                                  ),
+                              ],
+                              onChanged: (value) {
+                                if (value != null) {
+                                  setState(() => _faculty = value);
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const _FieldLabel('Year of study *'),
+                            DropdownButtonFormField<int>(
+                              initialValue: _year,
+                              isExpanded: true,
+                              items: [
+                                for (final year in profileYears)
+                                  DropdownMenuItem(
+                                    value: year,
+                                    child: Text('Year $year'),
+                                  ),
+                              ],
+                              onChanged: (value) {
+                                if (value != null) {
+                                  setState(() => _year = value);
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  const _FieldLabel('Bio'),
+                  TextFormField(
+                    controller: _bioController,
+                    validator: _validateBio,
+                    onChanged: (_) => setState(() {}),
+                    minLines: 3,
+                    maxLines: 5,
+                    decoration: const InputDecoration(
+                      hintText: 'Tell others what you are into',
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  const _FieldLabel('Interests · Select all that apply'),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final interest in profileInterests)
+                        InterestChip(
+                          label: interest,
+                          selected: _interests.contains(interest),
+                          onTap: () => _toggleInterest(interest),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _showInterestError
+                        ? 'Select at least one interest'
+                        : '${_interests.length} selected',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: _showInterestError
+                          ? AppColors.error
+                          : AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        bottomNavigationBar: SafeArea(
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+            decoration: const BoxDecoration(
+              color: AppColors.surface,
+              border: Border(top: BorderSide(color: AppColors.border)),
+            ),
+            child: Row(
               children: [
-                // Photo row
-                Row(
-                  children: [
-                    ProfileAvatar(name: profile.name, radius: 20),
-                    const SizedBox(width: 10),
-                    TextButton(
-                      onPressed: _showPhotoMessage,
-                      child: const Text('Change photo'),
-                    ),
-                    const Spacer(),
-                    TextButton(
-                      onPressed: _showPhotoMessage,
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.textSecondary,
-                      ),
-                      child: const Text('Remove photo'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                const _FieldLabel('Full name *'),
-                TextFormField(
-                  controller: _nameController,
-                  textCapitalization: TextCapitalization.words,
-                  validator: _validateName,
-                  onChanged: (_) => setState(() {}),
-                  decoration: const InputDecoration(
-                    hintText: 'Name and surname',
+                Expanded(
+                  child: OutlineActionButton(
+                    label: 'Cancel',
+                    onPressed: () => Navigator.maybePop(context),
                   ),
                 ),
-                const SizedBox(height: 20),
-
-                // Email comes from the university account, so it is locked.
-                const _FieldLabel('University email *'),
-                TextFormField(
-                  initialValue: profile.email,
-                  readOnly: true,
-                  enabled: false,
-                  style: const TextStyle(color: AppColors.textSecondary),
-                  decoration: const InputDecoration(
-                    fillColor: AppColors.background,
-                    suffixIcon: Icon(Icons.lock_outline, size: 18),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Faculty and year side by side; Expanded shares the width
-                // so the dropdowns never overflow on small phones.
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const _FieldLabel('Faculty *'),
-                          DropdownButtonFormField<String>(
-                            initialValue: _faculty,
-                            isExpanded: true,
-                            items: [
-                              for (final faculty in profileFaculties)
-                                DropdownMenuItem(
-                                  value: faculty,
-                                  child: Text(faculty),
-                                ),
-                            ],
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() => _faculty = value);
-                              }
-                            },
-                          ),
-                        ],
-                      ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 2,
+                  child: FilledButton(
+                    onPressed: _save,
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(46),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const _FieldLabel('Year of study *'),
-                          DropdownButtonFormField<int>(
-                            initialValue: _year,
-                            isExpanded: true,
-                            items: [
-                              for (final year in profileYears)
-                                DropdownMenuItem(
-                                  value: year,
-                                  child: Text('Year $year'),
-                                ),
-                            ],
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() => _year = value);
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                const _FieldLabel('Bio'),
-                TextFormField(
-                  controller: _bioController,
-                  validator: _validateBio,
-                  onChanged: (_) => setState(() {}),
-                  minLines: 3,
-                  maxLines: 5,
-                  decoration: const InputDecoration(
-                    hintText: 'Tell others what you are into',
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                const _FieldLabel('Interests · Select all that apply'),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    for (final interest in profileInterests)
-                      InterestChip(
-                        label: interest,
-                        selected: _interests.contains(interest),
-                        onTap: () => _toggleInterest(interest),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  _showInterestError
-                      ? 'Select at least one interest'
-                      : '${_interests.length} selected',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: _showInterestError
-                        ? AppColors.error
-                        : AppColors.textSecondary,
+                    child: const Text('Save profile'),
                   ),
                 ),
               ],
@@ -332,37 +363,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-          decoration: const BoxDecoration(
-            color: AppColors.surface,
-            border: Border(top: BorderSide(color: AppColors.border)),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: OutlineActionButton(
-                  label: 'Cancel',
-                  onPressed: () => Navigator.maybePop(context),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                flex: 2,
-                child: FilledButton(
-                  onPressed: _save,
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size.fromHeight(46),
-                  ),
-                  child: const Text('Save profile'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
     );
   }
 }

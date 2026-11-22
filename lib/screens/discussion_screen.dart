@@ -47,12 +47,15 @@ class _DiscussionScreenState extends State<DiscussionScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete comment?'),
-        content: const Text('This cannot be undone.'),
+        title: const Text('Delete your comment?'),
+        content: Text(
+          'This comment will be removed from ${widget.event.title}. '
+          'This cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Keep'),
+            child: const Text('Keep comment'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, true),

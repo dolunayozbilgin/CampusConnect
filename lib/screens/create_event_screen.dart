@@ -229,13 +229,11 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Cancel this event?'),
+        title: Text('Cancel ${widget.event!.title}?'),
         content: Text(
-          _going > 0
-              ? '$_going students are going. They will see the event as '
-                    'cancelled. This cannot be undone.'
-              : 'The event will be removed from the feed. This cannot be '
-                    'undone.',
+          _going == 1
+              ? '1 attendee will see this event as cancelled.'
+              : '$_going attendees will see this event as cancelled.',
         ),
         actions: [
           TextButton(
@@ -280,22 +278,26 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => EventDetailsScreen(event: event)),
+      MaterialPageRoute(
+        builder: (_) => EventDetailsScreen(
+          event: event,
+          banner: SuccessBanner(
+            title: 'Event published',
+            message: '${event.title} is now on the Event Feed.',
+          ),
+        ),
+      ),
     );
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(const SnackBar(content: Text('Event published')));
   }
 
   Future<void> _confirmDiscard() async {
     final discard = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(_isEditing ? 'Discard changes?' : 'Discard this event?'),
-        content: Text(
-          _isEditing
-              ? 'Your edits to this event will be lost.'
-              : 'What you entered will be lost.',
+        title: const Text('Discard changes?'),
+        content: const Text(
+          'You have unsaved event changes. Discarding will restore the last '
+          'saved version.',
         ),
         actions: [
           TextButton(
@@ -525,8 +527,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                   if (_going > 0) ...[
                     const SizedBox(height: 8),
                     Text(
-                      '$_going students going. Capacity must be at least '
-                      '$_going.',
+                      '$_going ${_going == 1 ? 'student' : 'students'} '
+                      'going. Capacity must be at least $_going.',
                       style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.tagGreenText,
@@ -568,23 +570,21 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
             child: _isEditing
                 ? Row(
                     children: [
-                      Expanded(
-                        flex: 2,
-                        child: OutlinedButton(
-                          // maybePop goes through the PopScope guard.
-                          onPressed: () => Navigator.maybePop(context),
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: const Size.fromHeight(50),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
+                      // Sized to its label; Save changes takes the rest.
+                      OutlinedButton(
+                        // maybePop goes through the PopScope guard.
+                        onPressed: () => Navigator.maybePop(context),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(0, 50),
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Text('Discard'),
                         ),
+                        child: const Text('Discard'),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        flex: 5,
                         child: FilledButton(
                           onPressed: _saveChanges,
                           child: const Text('Save changes'),

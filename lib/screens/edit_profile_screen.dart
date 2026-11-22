@@ -113,6 +113,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  void _cancel() {
+    if (_hasChanges) {
+      _confirmDiscard();
+    } else {
+      Navigator.pop(context);
+    }
+  }
+
   void _showPhotoMessage() {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -352,7 +360,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 Expanded(
                   child: OutlineActionButton(
                     label: 'Cancel',
-                    onPressed: () => Navigator.maybePop(context),
+                    onPressed: _cancel,
                   ),
                 ),
                 const SizedBox(width: 12),

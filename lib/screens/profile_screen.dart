@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import '../data/sample_profile.dart';
 import '../models/user_profile.dart';
 import '../utils/app_colors.dart';
-import '../widgets/event_tag.dart';
+import '../widgets/interest_chip.dart';
+import '../widgets/outline_action_button.dart';
 import '../widgets/profile_avatar.dart';
-import '../widgets/stat_tile.dart';
 import 'edit_profile_screen.dart';
 import 'login_screen.dart';
 
@@ -20,7 +20,6 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   UserProfile _profile = sampleProfile;
-  bool _notifications = true;
 
   Future<void> _openEditProfile() async {
     final updated = await Navigator.push<UserProfile>(
@@ -68,45 +67,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Profile',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-                ),
-              ),
-              TextButton.icon(
-                onPressed: _openEditProfile,
-                icon: const Icon(Icons.edit_outlined, size: 18),
-                label: const Text('Edit'),
-              ),
-            ],
+          const Text(
+            'Profile',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
           ),
+          const SizedBox(height: 16),
+          _ProfileCard(profile: _profile, onEdit: _openEditProfile),
+          const SizedBox(height: 24),
+          const _SectionTitle('About me'),
           const SizedBox(height: 8),
-          _ProfileHeader(profile: _profile),
-          const SizedBox(height: 12),
-          // Three equal boxes that share the row on any screen width.
-          Row(
-            children: [
-              Expanded(
-                child: StatTile(value: _profile.joinedCount, label: 'Joined'),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: StatTile(
-                  value: _profile.organizedCount,
-                  label: 'Organized',
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: StatTile(
-                  value: _profile.interests.length,
-                  label: 'Interests',
-                ),
-              ),
-            ],
+          Text(
+            _profile.bio.isEmpty ? 'No bio yet.' : _profile.bio,
+            style: const TextStyle(
+              fontSize: 14,
+              height: 1.45,
+              color: AppColors.textSecondary,
+            ),
           ),
           const SizedBox(height: 24),
           const _SectionTitle('Interests'),
@@ -117,44 +93,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
             runSpacing: 8,
             children: [
               for (final interest in _profile.interests)
-                EventTag(
-                  label: interest,
-                  background: AppColors.primaryLight,
-                  foreground: AppColors.primary,
-                ),
+                InterestChip(label: interest),
             ],
           ),
-          const SizedBox(height: 24),
-          const _SectionTitle('Settings'),
-          const SizedBox(height: 10),
-          // Material (not a coloured Container) so the ListTile tap ripple
-          // stays visible.
-          Material(
-            color: AppColors.surface,
-            clipBehavior: Clip.antiAlias,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: AppColors.border),
-            ),
-            child: Column(
-              children: [
-                SwitchListTile(
-                  value: _notifications,
-                  onChanged: (value) => setState(() => _notifications = value),
-                  secondary: const Icon(Icons.notifications_outlined),
-                  title: const Text('Event reminders'),
-                ),
-                const Divider(height: 1, color: AppColors.border),
-                ListTile(
-                  onTap: _confirmLogOut,
-                  leading: const Icon(Icons.logout, color: AppColors.error),
-                  title: const Text(
-                    'Log out',
-                    style: TextStyle(color: AppColors.error),
-                  ),
-                ),
-              ],
-            ),
+          const SizedBox(height: 28),
+          OutlineActionButton(
+            label: 'Log out',
+            icon: Icons.logout,
+            onPressed: _confirmLogOut,
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Your profile is visible to other campus students.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
           ),
         ],
       ),
@@ -180,73 +132,83 @@ class _SectionTitle extends StatelessWidget {
   }
 }
 
-class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader({required this.profile});
+// White card at the top: avatar, name, email, faculty tag, Edit profile.
+class _ProfileCard extends StatelessWidget {
+  const _ProfileCard({required this.profile, required this.onEdit});
 
   final UserProfile profile;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              ProfileAvatar(name: profile.name),
-              const SizedBox(width: 14),
-              // Expanded keeps long names from overflowing on small phones.
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      profile.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      profile.subtitle,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      profile.email,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
+          ProfileAvatar(name: profile.name, radius: 36),
+          const SizedBox(height: 12),
           Text(
-            profile.bio,
+            profile.name,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontSize: 14,
-              height: 1.45,
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
               color: AppColors.textPrimary,
             ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            profile.email,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.school_outlined,
+                  size: 14,
+                  color: AppColors.textSecondary,
+                ),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    profile.subtitle,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          OutlineActionButton(
+            label: 'Edit profile',
+            icon: Icons.edit_outlined,
+            onPressed: onEdit,
           ),
         ],
       ),

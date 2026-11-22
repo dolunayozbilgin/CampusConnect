@@ -35,17 +35,19 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
         ),
         const SizedBox(height: AppSpacing.md),
         Expanded(
-          child: ListView.separated(
-            padding: AppSpacing.listPadding,
-            itemCount: myEvents.length,
-            separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
-            itemBuilder: (context, index) {
-              return _MyEventCard(
-                event: myEvents[index],
-                onRemove: () => _confirmRemove(index),
-              );
-            },
-          ),
+          child: myEvents.isEmpty
+              ? const _EmptyMyEvents()
+              : ListView.separated(
+                  padding: AppSpacing.listPadding,
+                  itemCount: myEvents.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
+                  itemBuilder: (context, index) {
+                    return _MyEventCard(
+                      event: myEvents[index],
+                      onRemove: () => _confirmRemove(index),
+                    );
+                  },
+                ),
         ),
       ],
     );
@@ -171,6 +173,31 @@ class _MyEventCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _EmptyMyEvents extends StatelessWidget {
+  const _EmptyMyEvents();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.event_busy_outlined, size: 28, color: AppColors.textHint),
+          SizedBox(height: AppSpacing.md),
+          Text('No events yet', style: AppTextStyles.sectionTitle),
+          SizedBox(height: AppSpacing.sm),
+          Text(
+            'Events you join will show up here.',
+            textAlign: TextAlign.center,
+            style: AppTextStyles.caption,
+          ),
+        ],
       ),
     );
   }

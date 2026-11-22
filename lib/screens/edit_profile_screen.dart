@@ -184,22 +184,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Photo row
+                  // Photo row. Wrap lets the two buttons drop to a second
+                  // line on very narrow phones instead of overflowing.
                   Row(
                     children: [
                       ProfileAvatar(name: profile.name, radius: 20),
                       const SizedBox(width: 10),
-                      TextButton(
-                        onPressed: _showPhotoMessage,
-                        child: const Text('Change photo'),
-                      ),
-                      const Spacer(),
-                      TextButton(
-                        onPressed: _showPhotoMessage,
-                        style: TextButton.styleFrom(
-                          foregroundColor: AppColors.textSecondary,
+                      Expanded(
+                        child: Wrap(
+                          alignment: WrapAlignment.spaceBetween,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            TextButton(
+                              onPressed: _showPhotoMessage,
+                              child: const Text('Change photo'),
+                            ),
+                            TextButton(
+                              onPressed: _showPhotoMessage,
+                              style: TextButton.styleFrom(
+                                foregroundColor: AppColors.textSecondary,
+                              ),
+                              child: const Text('Remove photo'),
+                            ),
+                          ],
                         ),
-                        child: const Text('Remove photo'),
                       ),
                     ],
                   ),

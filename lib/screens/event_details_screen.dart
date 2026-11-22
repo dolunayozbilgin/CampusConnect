@@ -4,6 +4,7 @@ import '../models/campus_event.dart';
 import '../utils/app_colors.dart';
 import '../widgets/attendee_initials.dart';
 import '../widgets/event_cover.dart';
+import '../widgets/event_date_tile.dart';
 import '../widgets/event_tag.dart';
 
 class EventDetailsScreen extends StatefulWidget {
@@ -51,9 +52,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: false,
+        titleSpacing: 0,
         title: const Text(
-          'Event details',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          'Event Details',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
         ),
         backgroundColor: AppColors.background,
         scrolledUnderElevation: 0,
@@ -66,22 +69,26 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: EventCover(url: event.imageUrl, height: 220),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                event.title,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                child: SizedBox(
+                  height: 200,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      EventCover(url: event.imageUrl, height: 200),
+                      Positioned(
+                        left: 12,
+                        top: 12,
+                        child: EventDateTile(day: event.day),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 16),
               Row(
                 children: [
                   EventTag(
-                    label: event.category,
+                    label: event.category.toUpperCase(),
                     background: AppColors.tagGreen,
                     foreground: AppColors.tagGreenText,
                   ),
@@ -94,6 +101,24 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     ),
                   ],
                 ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                event.title,
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                event.description,
+                style: const TextStyle(
+                  fontSize: 15,
+                  height: 1.5,
+                  color: AppColors.textSecondary,
+                ),
               ),
               const SizedBox(height: 20),
               _InfoRow(
@@ -146,20 +171,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                       ),
                     ),
                   ],
-                ),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'About this event',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                event.description,
-                style: const TextStyle(
-                  fontSize: 14,
-                  height: 1.5,
-                  color: AppColors.textSecondary,
                 ),
               ),
               const SizedBox(height: 24),

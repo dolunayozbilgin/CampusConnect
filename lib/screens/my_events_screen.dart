@@ -42,12 +42,42 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
             itemBuilder: (context, index) {
               return _MyEventCard(
                 event: myEvents[index],
-                onRemove: () => _removeEvent(index),
+                onRemove: () => _confirmRemove(index),
               );
             },
           ),
         ),
       ],
+    );
+  }
+
+  void _confirmRemove(int index) {
+    final event = myEvents[index];
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Leave this event?'),
+          content: Text(
+            'You will be removed from ${event.title}.',
+            style: AppTextStyles.body,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                _removeEvent(index);
+              },
+              style: TextButton.styleFrom(foregroundColor: AppColors.error),
+              child: const Text('Leave'),
+            ),
+          ],
+        );
+      },
     );
   }
 

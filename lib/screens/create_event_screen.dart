@@ -121,7 +121,11 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
   String? _validateEndTime(String? value) {
     if (_end == null) return 'Pick an end time';
-    // TODO(human): reject an end time that is not after the start time.
+    // Start-time errors are shown on their own field.
+    if (_start == null) return null;
+    final startMinutes = _start!.hour * 60 + _start!.minute;
+    final endMinutes = _end!.hour * 60 + _end!.minute;
+    if (endMinutes <= startMinutes) return 'End must be after start';
     return null;
   }
 

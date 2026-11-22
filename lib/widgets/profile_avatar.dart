@@ -22,13 +22,13 @@ class ProfileAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     return CircleAvatar(
       radius: radius,
-      backgroundColor: AppColors.primaryLight,
+      backgroundColor: AppColors.tagGreen,
       child: Text(
         _initials,
         style: TextStyle(
           fontSize: radius * 0.6,
           fontWeight: FontWeight.w700,
-          color: AppColors.primary,
+          color: AppColors.tagGreenText,
         ),
       ),
     );
